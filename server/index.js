@@ -5,7 +5,7 @@ const holder_routes = require('./routes/holder_routes');
 const market_stats_routes = require('./routes/market_stats_routes');
 
 const app = express();
-const PORT = 8080;
+const PORT = 80;
 
 // app.use(cors());
 app.use(express.json());
