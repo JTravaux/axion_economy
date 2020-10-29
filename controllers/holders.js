@@ -15,43 +15,35 @@ const calculateEcosystem = res => {
         },
         shrimp: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         crab: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         fish: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         octopus: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         dolphin: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         tigerShark:{
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         greatWhite: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
         whale: {
             count: 0,
-            totalAxn: 0,
-            holders: []
+            totalAxn: 0
         },
     }
 
@@ -61,56 +53,48 @@ const calculateEcosystem = res => {
             results.shrimp.count++;
             results.totals.held_axn += r.balance;
             results.shrimp.totalAxn += r.balance;
-            // results.shrimp.holders.push(r)
         }
         else if (r.balance >= 1000 && r.balance <= 999999) {
             results.totals.holders++;
             results.crab.count++;
             results.totals.held_axn += r.balance;
             results.crab.totalAxn += r.balance;
-            // results.crab.holders.push(r)
         }
         else if (r.balance >= 1000000 && r.balance <= 9999999) {
             results.totals.holders++;
             results.fish.count++;
             results.totals.held_axn += r.balance;
             results.fish.totalAxn += r.balance;
-            // results.fish.holders.push(r)
         }
         else if (r.balance >= 10000000 && r.balance <= 49999999) {
             results.totals.holders++;
             results.octopus.count++;
             results.totals.held_axn += r.balance;
             results.octopus.totalAxn += r.balance;
-            // results.octopus.holders.push(r)
         }
         else if (r.balance >= 50000000 && r.balance <= 99999999) {
             results.totals.holders++;
             results.dolphin.count++;
             results.totals.held_axn += r.balance;
             results.dolphin.totalAxn += r.balance;
-            // results.dolphin.holders.push(r)
         }
         else if (r.balance >= 100000000 && r.balance <= 499999999) {
             results.totals.holders++;
             results.tigerShark.count++;
             results.totals.held_axn += r.balance;
             results.tigerShark.totalAxn += r.balance;
-            // results.tigerShark.holders.push(r)
         }
         else if (r.balance >= 500000000 && r.balance <= 999999999) {
             results.totals.holders++;
             results.greatWhite.count++;
             results.totals.held_axn += r.balance;
             results.greatWhite.totalAxn += r.balance;
-            // results.greatWhite.holders.push(r)
         }
         else if (r.balance >= 1000000000 && !IGNORED_ADDRESSES.includes(r.address)) {
             results.totals.holders++;
             results.whale.count++;
             results.totals.held_axn += r.balance;
             results.whale.totalAxn += r.balance;
-            // results.whale.holders.push(r)
         }
     })
 

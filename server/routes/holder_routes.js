@@ -19,7 +19,7 @@ holder_router.get('/holders/all', async (req, res) => {
         }, 3600000) // 1 hour
 
         res.status(200).send(holders)
-    } else res.status(200).send(holders_cache)
+    } else setTimeout(() => { res.status(200).send(holders_cache) }, 500);
 })
 
 holder_router.get('/holders/top', async (req, res) => {
