@@ -1,4 +1,5 @@
 const { getAllHolders, get1000Holders } = require('../../controllers/holders');
+const { db } = require('../../controllers/db');
 
 const express = require('express');
 const holder_router = express.Router();
@@ -6,16 +7,26 @@ const holder_router = express.Router();
 let holders_cache;
 let holder_updater;
 
+const _saveToDB = data => {
+    db.connect(async (err) => {
+        if(!err) {
+            const collection = db.db("AxionStats").collection("ecosystem_change");
+            collection.insertOne(data);
+            db.close();
+        }
+    });
+}
+
 holder_router.get('/holders/all', async (req, res) => {
     if(!holders_cache) {
         const holders = await getAllHolders();
-
-        // Homemade cache
         holders_cache = holders;
+        _saveToDB(holders);
+
         holder_updater = setInterval(async () => {
             const holders = await getAllHolders();
             holders_cache = holders;
-            console.log("Updated Holders")
+            _saveToDB(holders);
         }, 3600000) // 1 hour
 
         res.status(200).send(holders)
