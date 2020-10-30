@@ -11,8 +11,10 @@ const _saveToDB = data => {
     db.connect(async (err) => {
         if(!err) {
             const collection = db.db("AxionStats").collection("ecosystem_change");
-            collection.insertOne(data);
-            db.close();
+            collection.insertOne(data).then(() => {
+                db.close();
+            }).catch(err => console.log(err))
+           
         }
     });
 }
