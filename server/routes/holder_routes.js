@@ -9,13 +9,8 @@ let holder_updater;
 
 const _saveToDB = data => {
     db.connect(async (err) => {
-        if(!err) {
-            const collection = db.db("AxionStats").collection("ecosystem_change");
-            collection.insertOne(data).then(() => {
-                db.close();
-            }).catch(err => console.log(err))
-           
-        }
+        if(!err) 
+            db.db("AxionStats").collection("ecosystem_change").insertOne(data).then(()=>console.log("Added")).catch(err => console.log(err))
     });
 }
 
@@ -29,7 +24,7 @@ holder_router.get('/holders/all', async (req, res) => {
             const holders = await getAllHolders();
             holders_cache = holders;
             _saveToDB(holders);
-        }, 3600000) // 1 hour
+        }, 3600000) //3600000 = 1 hour
 
         res.status(200).send(holders)
     } else setTimeout(() => { res.status(200).send(holders_cache) }, 500);
