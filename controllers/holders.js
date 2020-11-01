@@ -6,12 +6,15 @@ const IGNORED_ADDRESSES = [
     "0xedaedd22e653c504ff6806bf61664292848eb26e" /* UNI */
 ]
 
-const calculateEcosystem = res => {
+const calculateEcosystem = data => {
+    const res = data.filter(h => h.balance >= 1);
+
     const results = {
         totals: {
             holders: 0,
             held_axn: 0,
-            last_updated: 0
+            last_updated: 0,
+            num_wallets: data.length
         },
         shrimp: {
             count: 0,
@@ -119,7 +122,7 @@ const getAllHolders = async () => {
         const res = await fetch(ENDPOINT);
         const results = await res.json();
 
-        let holders = results.filter(h => h.balance >= 1).map(h => { return { address: h.address, balance: h.balance }})
+        let holders = results.map(h => { return { address: h.address, balance: h.balance }})
         return calculateEcosystem(holders);
     } catch (err) {
         console.log(err)

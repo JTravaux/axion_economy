@@ -1,4 +1,3 @@
-const cors = require('cors');
 const path = require('path');
 const express = require('express');
 const holder_routes = require('./routes/holder_routes');
