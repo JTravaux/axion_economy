@@ -19,12 +19,12 @@ holder_router.get('/holders/all', async (req, res) => {
         try {
             const holders = await getAllHolders();
             holders_cache = holders;
-            // _saveToDB(holders);
+            _saveToDB(holders);
 
             holder_updater = setInterval(async () => {
                 const holders = await getAllHolders();
                 holders_cache = holders;
-                // _saveToDB(holders);
+                _saveToDB(holders);
             }, 3600000) //3600000 = 1 hour
 
             res.status(200).send(holders)
