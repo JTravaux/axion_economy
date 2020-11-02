@@ -7,10 +7,15 @@ const holder_router = express.Router();
 let holders_cache;
 let holder_updater;
 
-const _saveToDB = data => {
+const _saveToDB = (data, ref) => {
+    if (ref.includes("localhost")) {
+        console.log("Not Saved, on local.")
+        return;
+    }
+    
     db.connect(async (err) => {
-        if(!err) 
-            db.db("AxionStats").collection("ecosystem_change").insertOne(data).then(()=>console.log("Added")).catch(err => console.log(err))
+        if (!err)
+            db.db("AxionStats").collection("ecosystem_change").insertOne(data).catch(err => console.log(err))
     });
 }
 
@@ -19,12 +24,12 @@ holder_router.get('/holders/all', async (req, res) => {
         try {
             const holders = await getAllHolders();
             holders_cache = holders;
-            _saveToDB(holders);
+            _saveToDB(holders, req.headers.referer);
 
             holder_updater = setInterval(async () => {
                 const holders = await getAllHolders();
                 holders_cache = holders;
-                _saveToDB(holders);
+                _saveToDB(holders, req.headers.referer);
             }, 3600000) //3600000 = 1 hour
 
             res.status(200).send(holders)

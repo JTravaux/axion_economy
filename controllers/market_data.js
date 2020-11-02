@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const { ethers } = require('ethers');
 const { Fetcher, ChainId, Token, Route, WETH, Trade, TokenAmount, TradeType } = require('@uniswap/sdk');
 
-const AXION_CONTRACT = "0xEd1199093b1aBd07a368Dd1C0Cdc77D8517BA2A0";
+const AXION_CONTRACT = "0xda4c5aea122260e70616e979592735f12fe20499";
 const PROVIDER = new ethers.providers.EtherscanProvider("homestead", "2AVWB5E47AG32JUNASSZM83A7XE71MQ92R");
 
 const getAxnPerEth = () => {
@@ -25,7 +25,7 @@ const getAxnPerEth = () => {
 
 const getUsdtPerAxn = () => {
     return new Promise(async (resolve, reject) => {
-        const AXION = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress("0xed1199093b1abd07a368dd1c0cdc77d8517ba2a0"), 18);
+        const AXION = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(AXION_CONTRACT), 18);
         const USDT = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'), 6);
 
         try {
