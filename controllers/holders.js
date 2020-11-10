@@ -1,10 +1,5 @@
 const fetch = require('node-fetch');
-const AXION_CONTRACT = "0x10e112b291ba9e6fe2e068562d23fa330026893a";
-const IGNORED_ADDRESSES = [
-    "0xe8b283b606a212d82036f74f88177375125440f6" /* DEV FUND */,
-    // "0x28697b4a1618a77b1d61a85e99174616b519f629" /* PYRA CONTRACT */,
-    // "0x63499caacfd364c516075245a2950e830a910b90" /* UNI */
-]
+const { BLOXY_TOKEN_HOLDERS_ENDPOINT, ETHPLORER_TOKEN_HOLDERS_ENDPOINT, IGNORED_ADDRESSES } = require('../config');
 
 const calculateEcosystem = data => {
     const res = data.filter(h => h.balance >= 1);
@@ -116,10 +111,8 @@ const calculateEcosystem = data => {
 }
 
 const getAllHolders = async () => {
-    const ENDPOINT = `https://api.bloxy.info/token/token_holders_list?token=${AXION_CONTRACT}&limit=100000&key=ACCRtzFY9yPTF&format=structure`;
-
     try {
-        const res = await fetch(ENDPOINT);
+        const res = await fetch(BLOXY_TOKEN_HOLDERS_ENDPOINT);
         const results = await res.json();
 
         let holders = results.map(h => { return { address: h.address, balance: h.balance }})
@@ -132,7 +125,7 @@ const getAllHolders = async () => {
 
 const get1000Holders = async () => {
     try {
-        const res = await fetch(`https://api.ethplorer.io/getTopTokenHolders/${AXION_CONTRACT}?apiKey=${process.env.ETHPLORER_API}&limit=1000`);
+        const res = await fetch(ETHPLORER_TOKEN_HOLDERS_ENDPOINT);
         const results = await res.json();
 
         let holders = results.holders.filter(h => h.balance >= 1).map(h => { return { address: h.address, balance: h.balance } })
