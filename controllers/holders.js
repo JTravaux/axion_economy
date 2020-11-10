@@ -1,9 +1,9 @@
 const fetch = require('node-fetch');
-const AXION_CONTRACT = "0xda4c5aea122260e70616e979592735f12fe20499";
+const AXION_CONTRACT = "0x10e112b291ba9e6fe2e068562d23fa330026893a";
 const IGNORED_ADDRESSES = [
     "0xe8b283b606a212d82036f74f88177375125440f6" /* DEV FUND */,
-    "0x28697b4a1618a77b1d61a85e99174616b519f629" /* PYRA CONTRACT */,
-    "0x63499caacfd364c516075245a2950e830a910b90" /* UNI */
+    // "0x28697b4a1618a77b1d61a85e99174616b519f629" /* PYRA CONTRACT */,
+    // "0x63499caacfd364c516075245a2950e830a910b90" /* UNI */
 ]
 
 const calculateEcosystem = data => {
