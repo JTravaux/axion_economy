@@ -32,7 +32,7 @@ holder_router.get('/holders/all', async (req, res) => {
                 const holders = await getAllHolders();
                 holders_cache = holders;
                 _saveToDB(holders, req.headers.host);
-            }, 60000) //3600000 = 1 hour, 60000 = 1 minute
+            }, 600000) //3600000 = 1 hour, 600000 = 10 minute
 
             res.status(200).send(holders)
         } catch (err) {
