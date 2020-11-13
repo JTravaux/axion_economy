@@ -14,7 +14,7 @@ const IGNORED_ADDRESSES = [
 const ETHPLORER_API = "EK-f48kD-FeUA5G1-do7UA"
 const ETHPLORER_TOKEN_HOLDERS_ENDPOINT = `https://api.ethplorer.io/getTopTokenHolders/${AXION_CONTRACT}?apiKey=${ETHPLORER_API}&limit=1000`
 const BLOXY_TOKEN_HOLDERS_ENDPOINT = `https://api.bloxy.info/token/token_holders_list?token=${AXION_CONTRACT}&limit=100000&key=ACCRtzFY9yPTF&format=structure`
-const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/hex2t?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false";
+const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/axion?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false";
 
 const ONE_TOKEN = "1000000000000000000";
 const PROVIDER = new ethers.providers.EtherscanProvider("homestead", "2AVWB5E47AG32JUNASSZM83A7XE71MQ92R");
