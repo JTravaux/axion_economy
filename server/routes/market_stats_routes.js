@@ -1,21 +1,46 @@
-const { getAxnPerEth, getUsdtPerAxn, getVolume } = require('../../controllers/market_data');
+const { getAxnPerEth, getUsdtPerAxn, getVolume, getCirculatingSupply } = require('../../controllers/market_data');
 
 const express = require('express');
 const holder_router = express.Router();
 
 holder_router.get('/axn-eth', async (req, res) => {
-    const result = await getAxnPerEth();
-    res.status(200).send(result)
+    try {
+        const result = await getAxnPerEth();
+        res.status(200).send(result)
+    } catch (err) { 
+        console.log(err)
+        res.sendStatus(500);
+    }
 })
 
 holder_router.get('/usdt-axn', async (req, res) => {
-    const result = await getUsdtPerAxn();
-    res.status(200).send(result)
+    try {
+        const result = await getUsdtPerAxn();
+        res.status(200).send(result)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500);
+    }
 })
 
 holder_router.get('/volume', async (req, res) => {
-    const result = await getVolume();
-    res.status(200).send(result)
+    try {
+        const result = await getVolume();
+        res.status(200).send(result)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500);
+    }
+})
+
+holder_router.get('/circ-supply', async (req, res) => {
+    try {
+        const result = await getCirculatingSupply();
+        res.status(200).send(result)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500);
+    }
 })
 
 module.exports = holder_router;

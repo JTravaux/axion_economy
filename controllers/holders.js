@@ -1,8 +1,12 @@
 const fetch = require('node-fetch');
-const { BLOXY_TOKEN_HOLDERS_ENDPOINT, ETHPLORER_TOKEN_HOLDERS_ENDPOINT, IGNORED_ADDRESSES } = require('../config');
+const { BLOXY_TOKEN_HOLDERS_ENDPOINT, ETHPLORER_TOKEN_HOLDERS_ENDPOINT } = require('../config');
 
 const calculateEcosystem = data => {
-    const res = data.filter(h => h.balance >= 1);
+    const res = data.filter(h => 
+        h.balance >= 1 && 
+        h.address_type === "Wallet" && 
+        h.address !== "0xe8b283b606a212d82036f74f88177375125440f6"
+    );
 
     const results = {
         totals: {
@@ -88,7 +92,7 @@ const calculateEcosystem = data => {
             results.totals.held_axn += r.balance;
             results.greatWhite.totalAxn += r.balance;
         }
-        else if (r.balance >= 1000000000 && !IGNORED_ADDRESSES.includes(r.address)) {
+        else if (r.balance >= 1000000000) {
             results.totals.holders++;
             results.whale.count++;
             results.totals.held_axn += r.balance;

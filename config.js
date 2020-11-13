@@ -5,15 +5,10 @@ const { ChainId, Token } = require('@uniswap/sdk');
 const AXION_CONTRACT = "0x7d85e23014f84e6e21d5663acd8751bef3562352";
 const USDT_CONTRACT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
 
-const IGNORED_ADDRESSES = [
-    "0xe8b283b606a212d82036f74f88177375125440f6" /* DEV FUND */,
-    "0x0d0f908ad29bd8a9f8d99533e3ad69e2e40f3094" /* UNI */,
-    "0xb1475c18ea63f025308eed9950b9f954acc742c0" /* ?? */
-]
-
 const ETHPLORER_API = "EK-f48kD-FeUA5G1-do7UA"
 const ETHPLORER_TOKEN_HOLDERS_ENDPOINT = `https://api.ethplorer.io/getTopTokenHolders/${AXION_CONTRACT}?apiKey=${ETHPLORER_API}&limit=1000`
 const BLOXY_TOKEN_HOLDERS_ENDPOINT = `https://api.bloxy.info/token/token_holders_list?token=${AXION_CONTRACT}&limit=100000&key=ACCRtzFY9yPTF&format=structure`
+const BLOXY_TOKEN_INFO_ENDPOINT = `https://api.bloxy.info/token/token_stat?token=${AXION_CONTRACT}&key=ACCRtzFY9yPTF&format=structure`
 const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/axion?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false";
 
 const ONE_TOKEN = "1000000000000000000";
@@ -27,7 +22,7 @@ module.exports = {
     PROVIDER,
     ONE_TOKEN,
     AXION_CONTRACT,
-    IGNORED_ADDRESSES,
+    BLOXY_TOKEN_INFO_ENDPOINT,
     BLOXY_TOKEN_HOLDERS_ENDPOINT,
     COINGECKO_VOLUME_INFO_ENDPOINT,
     ETHPLORER_TOKEN_HOLDERS_ENDPOINT,
