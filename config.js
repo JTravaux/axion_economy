@@ -2,7 +2,7 @@ const Web3 = require('web3');
 const { ethers } = require('ethers');
 const { ChainId, Token } = require('@uniswap/sdk');
 
-const AXION_CONTRACT = "0x10e112b291ba9e6fe2e068562d23fa330026893a";
+const AXION_CONTRACT = "0x7d85e23014f84e6e21d5663acd8751bef3562352";
 const USDT_CONTRACT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
 
 const IGNORED_ADDRESSES = [
