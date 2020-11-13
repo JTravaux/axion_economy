@@ -119,7 +119,7 @@ const getAllHolders = async () => {
         const res = await fetch(BLOXY_TOKEN_HOLDERS_ENDPOINT);
         const results = await res.json();
 
-        let holders = results.map(h => { return { address: h.address, balance: h.balance }})
+        let holders = results.map(h => { return { address: h.address, balance: h.balance, address_type: h.address_type }})
         return calculateEcosystem(holders);
     } catch (err) {
         console.log(err)
