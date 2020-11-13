@@ -1,5 +1,5 @@
-const { db } = require('../../controllers/db');
-const { getAllHolders, get1000Holders } = require('../../controllers/holders');
+const { db } = require('../controllers/db');
+const { getAllHolders, get1000Holders } = require('../controllers/holders');
 
 const express = require('express');
 const holder_router = express.Router();

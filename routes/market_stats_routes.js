@@ -1,4 +1,4 @@
-const { getAxnPerEth, getUsdtPerAxn, getVolume, getCirculatingSupply } = require('../../controllers/market_data');
+const { getAxnPerEth, getUsdtPerAxn, getVolume, getCirculatingSupply } = require('../controllers/market_data');
 
 const express = require('express');
 const holder_router = express.Router();
