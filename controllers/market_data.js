@@ -1,16 +1,16 @@
+const web3 = require('web3');
 const fetch = require('node-fetch');
-const { ONE_TOKEN, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, BLOXY_TOKEN_INFO_ENDPOINT } = require('../config');
 const { Fetcher, ChainId, Route, WETH, Trade, TokenAmount, TradeType } = require('@uniswap/sdk');
+const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CONTRACTS } = require('../config');
 
-let lastPrice;
-
+// METHODS
 const getAxnPerEth = () => {
     return new Promise(async (resolve, reject) => {
         try {
             const PAIR = await Fetcher.fetchPairData(WETH[AXION.chainId], AXION, PROVIDER);
             const TRADE = new Trade(
                 new Route([PAIR], WETH[AXION.chainId]),
-                new TokenAmount(WETH[AXION.chainId], ONE_TOKEN), // 1 ETH
+                new TokenAmount(WETH[AXION.chainId], ONE_TOKEN_18),
                 TradeType.EXACT_INPUT
             )
             
@@ -19,6 +19,7 @@ const getAxnPerEth = () => {
     })
 }
 
+let lastPrice;
 const getUsdtPerAxn = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -27,7 +28,7 @@ const getUsdtPerAxn = () => {
 
             const TRADE = new Trade(
                 new Route([AXIONwETHPair, wETHUSDTPair], AXION),
-                new TokenAmount(AXION, ONE_TOKEN + "0"),
+                new TokenAmount(AXION, ONE_TOKEN_18),
                 TradeType.EXACT_INPUT
             )
 
@@ -39,16 +40,19 @@ const getUsdtPerAxn = () => {
 
 const getMarketCap = async () => {
     return new Promise((resolve, reject) => {
-        fetch(BLOXY_TOKEN_INFO_ENDPOINT).then(result => {
-            result.json().then(async (res) => {
-                if(lastPrice)
-                    resolve({ market_cap: res[0].circulating_supply * Number(lastPrice) });
-
+        CONTRACTS.token.methods.totalSupply().call().then(async (supply) => {
+            const ADJUSTED_SUPPLY = web3.utils.toBN(supply).div(web3.utils.toBN(ONE_TOKEN_18)).toNumber();
+    
+            if (lastPrice) {
+                const MARKET_CAP = ADJUSTED_SUPPLY * Number(lastPrice);
+                resolve({ market_cap: MARKET_CAP });
+            } else {
                 try {
-                    const price = await getUsdtPerAxn();
-                    resolve({ market_cap: res[0].circulating_supply * Number(price.usdt) });
-                } catch (err) { reject() }
-            })
+                    const PRICE = await getUsdtPerAxn();
+                    const MARKET_CAP = ADJUSTED_SUPPLY * Number(PRICE.usdt)
+                    resolve({ market_cap: MARKET_CAP });
+                } catch (err) { reject(err) }
+            }
         }).catch(err => reject(err))
     })
 }

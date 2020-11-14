@@ -1,6 +1,8 @@
-const Web3 = require('web3');
 const { ethers } = require('ethers');
 const { ChainId, Token } = require('@uniswap/sdk');
+
+const Web3 = require('web3');
+const TOKEN_ABI = require('./ABIs/token.json');
 
 const AXION_CONTRACT = "0x7d85e23014f84e6e21d5663acd8751bef3562352";
 const USDT_CONTRACT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
@@ -11,16 +13,22 @@ const BLOXY_TOKEN_HOLDERS_ENDPOINT = `https://api.bloxy.info/token/token_holders
 const BLOXY_TOKEN_INFO_ENDPOINT = `https://api.bloxy.info/token/token_stat?token=${AXION_CONTRACT}&key=ACCRtzFY9yPTF&format=structure`
 const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/axion?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false";
 
-const ONE_TOKEN = "1000000000000000000";
+const ONE_TOKEN_18 = "1000000000000000000";
+const web3 = new Web3('https://mainnet.infura.io/v3/92222194d36d44ebadbe57cdd3e30078');
 const PROVIDER = new ethers.providers.EtherscanProvider("homestead", "2AVWB5E47AG32JUNASSZM83A7XE71MQ92R");
 const USDT = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(USDT_CONTRACT), 6);
 const AXION = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(AXION_CONTRACT), 18);
+const CONTRACTS = {
+    token: new web3.eth.Contract(TOKEN_ABI, AXION_CONTRACT),
+
+}
 
 module.exports = {
     USDT,
     AXION,
     PROVIDER,
-    ONE_TOKEN,
+    CONTRACTS,
+    ONE_TOKEN_18,
     AXION_CONTRACT,
     BLOXY_TOKEN_INFO_ENDPOINT,
     BLOXY_TOKEN_HOLDERS_ENDPOINT,
