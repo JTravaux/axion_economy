@@ -2,6 +2,8 @@ const fetch = require('node-fetch');
 const { ONE_TOKEN, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, BLOXY_TOKEN_INFO_ENDPOINT } = require('../config');
 const { Fetcher, ChainId, Route, WETH, Trade, TokenAmount, TradeType } = require('@uniswap/sdk');
 
+let lastPrice;
+
 const getAxnPerEth = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -29,16 +31,23 @@ const getUsdtPerAxn = () => {
                 TradeType.EXACT_INPUT
             )
 
+            lastPrice = TRADE.executionPrice.toSignificant(6);
             resolve({usdt: TRADE.executionPrice.toSignificant(6)})
         } catch (err) { reject(err) }
     })
 }
 
-const getCirculatingSupply = async () => {
+const getMarketCap = async () => {
     return new Promise((resolve, reject) => {
         fetch(BLOXY_TOKEN_INFO_ENDPOINT).then(result => {
-            result.json().then(res => {
-                resolve({ circ_supply: res[0].circulating_supply });
+            result.json().then(async (res) => {
+                if(lastPrice)
+                    resolve({ market_cap: res[0].circulating_supply * Number(lastPrice) });
+
+                try {
+                    const price = await getUsdtPerAxn();
+                    resolve({ market_cap: res[0].circulating_supply * Number(price.usdt) });
+                } catch (err) { reject() }
             })
         }).catch(err => reject(err))
     })
@@ -59,7 +68,7 @@ const getVolume = () => {
 
 module.exports = {
     getVolume,
+    getMarketCap,
     getAxnPerEth,
     getUsdtPerAxn,
-    getCirculatingSupply,
 }

@@ -1,4 +1,4 @@
-const { getAxnPerEth, getUsdtPerAxn, getVolume, getCirculatingSupply } = require('../controllers/market_data');
+const { getAxnPerEth, getUsdtPerAxn, getVolume, getMarketCap } = require('../controllers/market_data');
 
 const express = require('express');
 const holder_router = express.Router();
@@ -33,9 +33,9 @@ holder_router.get('/volume', async (req, res) => {
     }
 })
 
-holder_router.get('/circ-supply', async (req, res) => {
+holder_router.get('/market-cap', async (req, res) => {
     try {
-        const result = await getCirculatingSupply();
+        const result = await getMarketCap();
         res.status(200).send(result)
     } catch (err) {
         console.log(err)
