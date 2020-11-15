@@ -3,24 +3,30 @@ const { ChainId, Token } = require('@uniswap/sdk');
 
 const Web3 = require('web3');
 const TOKEN_ABI = require('./ABIs/token.json');
+const BPD_ABI = require('./ABIs/bpd.json');
 
-const AXION_CONTRACT = "0x7d85e23014f84e6e21d5663acd8751bef3562352";
+const AXION_CONTRACT = "0x7d85e23014f84e6e21d5663acd8751bef3562352"; 
+const BPD_CONTRACT = "0x6D5125d91Da1e7A56bC5ecB52060Be421eA48A93";
 const USDT_CONTRACT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
+const JACK_ADDRESS = "0xC1eD6bD35D19B7B0fC1fF57F17f53B589756fce0"; // Auction: 80% -> uniswap, 20% -> this wallet
 
-const ETHPLORER_API = "EK-f48kD-FeUA5G1-do7UA"
+const ETHPLORER_API = "EK-f48kD-FeUA5G1-do7UA";
+const BLOXY_API = "ACCRtzFY9yPTF";
+const INFURA_ENDPOINT = 'https://mainnet.infura.io/v3/92222194d36d44ebadbe57cdd3e30078'
 const ETHPLORER_TOKEN_HOLDERS_ENDPOINT = `https://api.ethplorer.io/getTopTokenHolders/${AXION_CONTRACT}?apiKey=${ETHPLORER_API}&limit=1000`
-const BLOXY_TOKEN_HOLDERS_ENDPOINT = `https://api.bloxy.info/token/token_holders_list?token=${AXION_CONTRACT}&limit=100000&key=ACCRtzFY9yPTF&format=structure`
-const BLOXY_TOKEN_INFO_ENDPOINT = `https://api.bloxy.info/token/token_stat?token=${AXION_CONTRACT}&key=ACCRtzFY9yPTF&format=structure`
+const BLOXY_TOKEN_HOLDERS_ENDPOINT = `https://api.bloxy.info/token/token_holders_list?token=${AXION_CONTRACT}&limit=100000&key=${BLOXY_API}&format=structure`
+const BLOXY_TOKEN_INFO_ENDPOINT = `https://api.bloxy.info/token/token_stat?token=${AXION_CONTRACT}&key=${BLOXY_API}&format=structure`
+const BLOXY_GET_ETH_BALANCE = `https://api.bloxy.info/address/balance?address=${JACK_ADDRESS}&chain=eth&key=${BLOXY_API}&format=structure`
 const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/axion?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false";
 
 const ONE_TOKEN_18 = "1000000000000000000";
-const web3 = new Web3('https://mainnet.infura.io/v3/92222194d36d44ebadbe57cdd3e30078');
+const web3 = new Web3(INFURA_ENDPOINT);
 const PROVIDER = new ethers.providers.EtherscanProvider("homestead", "2AVWB5E47AG32JUNASSZM83A7XE71MQ92R");
 const USDT = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(USDT_CONTRACT), 6);
 const AXION = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(AXION_CONTRACT), 18);
 const CONTRACTS = {
     token: new web3.eth.Contract(TOKEN_ABI, AXION_CONTRACT),
-
+    bpd: new web3.eth.Contract(BPD_ABI, BPD_CONTRACT),
 }
 
 module.exports = {
@@ -30,6 +36,8 @@ module.exports = {
     CONTRACTS,
     ONE_TOKEN_18,
     AXION_CONTRACT,
+    INFURA_ENDPOINT,
+    BLOXY_GET_ETH_BALANCE,
     BLOXY_TOKEN_INFO_ENDPOINT,
     BLOXY_TOKEN_HOLDERS_ENDPOINT,
     COINGECKO_VOLUME_INFO_ENDPOINT,

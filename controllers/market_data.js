@@ -1,9 +1,57 @@
 const web3 = require('web3');
 const fetch = require('node-fetch');
 const { Fetcher, ChainId, Route, WETH, Trade, TokenAmount, TradeType } = require('@uniswap/sdk');
-const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CONTRACTS } = require('../config');
+const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CONTRACTS, BLOXY_TOKEN_INFO_ENDPOINT } = require('../config');
 
 // METHODS
+let usdtPrice = null;
+let lastCircSupply = 0;
+let supplyAPI = 'etherscan' // or bloxy
+let lastCircSupplyUpdater = null;
+
+const _getUpdateSupplyBloxy = () => {
+    return new Promise(async (res, rej) => {
+        try {
+            const RES = await fetch(BLOXY_TOKEN_INFO_ENDPOINT);
+            const RES_JSON = await RES.json();
+            lastCircSupply = RES_JSON[0].circulating_supply
+
+            res(RES_JSON[0].circulating_supply)
+        } catch (err) { 
+            supplyAPI = "etherscan"
+            setTimeout(() => { supplyAPI = "bloxy" }, 1000 * (60 * 30))
+            rej(err) 
+        }
+    })
+}
+
+const _getUpdateSupplyEtherscan = () => {
+    return new Promise(async (res, rej) => {
+        CONTRACTS.token.methods.totalSupply().call().then(async (supply) => {
+            const ADJUSTED_SUPPLY = web3.utils.toBN(supply).div(web3.utils.toBN(ONE_TOKEN_18)).toNumber();
+            
+            res(ADJUSTED_SUPPLY)
+        }).catch(err => {
+            supplyAPI = "bloxy"
+            setTimeout(() => { supplyAPI = "etherscan" }, 1000 * (60 * 30))
+            rej(err)
+        })
+    })
+}
+
+let supplyMethod = supplyAPI === 'etherscan' ? _getUpdateSupplyEtherscan : _getUpdateSupplyBloxy;
+
+const _startAutoUpdatingCircSupply = () => {
+    lastCircSupplyUpdater = setInterval(async () => {
+        try {
+            supplyMethod();
+        } catch {
+            clearInterval(lastCircSupplyUpdater)
+            lastCircSupplyUpdater = null;
+        }
+    }, 1000 * (60 * 1))
+}
+
 const getAxnPerEth = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -19,7 +67,6 @@ const getAxnPerEth = () => {
     })
 }
 
-let lastPrice;
 const getUsdtPerAxn = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -32,28 +79,41 @@ const getUsdtPerAxn = () => {
                 TradeType.EXACT_INPUT
             )
 
-            lastPrice = TRADE.executionPrice.toSignificant(6);
+            usdtPrice = TRADE.executionPrice.toSignificant(6);
             resolve({usdt: TRADE.executionPrice.toSignificant(6)})
         } catch (err) { reject(err) }
     })
 }
 
 const getMarketCap = async () => {
-    return new Promise((resolve, reject) => {
-        CONTRACTS.token.methods.totalSupply().call().then(async (supply) => {
-            const ADJUSTED_SUPPLY = web3.utils.toBN(supply).div(web3.utils.toBN(ONE_TOKEN_18)).toNumber();
-    
-            if (lastPrice) {
-                const MARKET_CAP = ADJUSTED_SUPPLY * Number(lastPrice);
+    return new Promise(async (resolve, reject) => {
+        const SUPPLY = await getTotalSupply();
+
+        if (usdtPrice) {
+            const MARKET_CAP = SUPPLY * Number(usdtPrice);
+            resolve({ market_cap: MARKET_CAP });
+        } else {
+            try {
+                const PRICE = await getUsdtPerAxn();
+                const MARKET_CAP = SUPPLY * Number(PRICE.usdt)
                 resolve({ market_cap: MARKET_CAP });
-            } else {
-                try {
-                    const PRICE = await getUsdtPerAxn();
-                    const MARKET_CAP = ADJUSTED_SUPPLY * Number(PRICE.usdt)
-                    resolve({ market_cap: MARKET_CAP });
-                } catch (err) { reject(err) }
+            } catch (err) { reject(err) }
+        }
+    })
+}
+
+const getTotalSupply = async () => {
+    return new Promise(async (resolve, reject) => {
+        if (!lastCircSupplyUpdater) {
+            try { 
+                lastCircSupply = await supplyMethod() 
+                _startAutoUpdatingCircSupply()
+                resolve(lastCircSupply);
             }
-        }).catch(err => reject(err))
+            catch (err) { reject(err) }
+        } 
+            
+        resolve(lastCircSupply);
     })
 }
 
@@ -75,4 +135,5 @@ module.exports = {
     getMarketCap,
     getAxnPerEth,
     getUsdtPerAxn,
+    getTotalSupply,
 }

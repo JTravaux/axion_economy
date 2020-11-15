@@ -1,5 +1,5 @@
 const { db } = require('../controllers/db');
-const { getAllHolders, get1000Holders } = require('../controllers/holders');
+const { getAllHolders, get1000Holders, getHolderCount } = require('../controllers/holders');
 
 const express = require('express');
 const holder_router = express.Router();
@@ -52,14 +52,23 @@ holder_router.get('/holders/top', async (req, res) => {
     }
 })
 
-holder_router.get('/holders/cache/clear/:password', async (req, res) => {
-    if(req.params.password === "AxIoNsPoKe42069") {
+holder_router.get('/holders/count', async (req, res) => {
+    try {
+        const holders = await getHolderCount();
+        res.status(200).send({num_holders: holders})
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+})
+
+holder_router.get('/holders/cache/clear/:key', async (req, res) => {
+    if(req.params.key === "travaux") {
         holders_cache = await getAllHolders();
         res.status(200).send(holders_cache)
     }
     else res.status(401).send({ message: "Not Authorized" });
 })
-
 
 holder_router.get('/holders/history/:num', async (req, res) => {
     db.connect(async (err) => {

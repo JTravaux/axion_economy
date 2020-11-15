@@ -127,6 +127,17 @@ const getAllHolders = async () => {
     }
 }
 
+const getHolderCount = async () => {
+    try {
+        const res = await fetch(BLOXY_TOKEN_HOLDERS_ENDPOINT);
+        const results = await res.json();
+        return results.filter(h => h.balance >= 0.00000001).length; // 0.00000001 just made it closest to etherscan at the time.
+    } catch (err) {
+        console.log(err)
+        return [];
+    }
+}
+
 const get1000Holders = async () => {
     try {
         const res = await fetch(ETHPLORER_TOKEN_HOLDERS_ENDPOINT);
@@ -142,5 +153,6 @@ const get1000Holders = async () => {
 
 module.exports = {
     getAllHolders,
-    get1000Holders
+    get1000Holders,
+    getHolderCount,
 }
