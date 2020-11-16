@@ -5,6 +5,7 @@ const holder_routes = require('./routes/holder_routes');
 const market_stats_routes = require('./routes/market_stats_routes');
 const bpd_routes = require('./routes/bpd_routes');
 const auction_routes = require('./routes/auction_routes');
+const staking_routes = require('./routes/staking_routes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,6 +16,7 @@ app.use('/ecosystem', holder_routes);
 app.use('/stats', market_stats_routes);
 app.use('/auction', auction_routes);
 app.use('/bpd', bpd_routes);
+app.use('/staking', staking_routes);
 
 app.use(express.static(path.join(__dirname, './frontend')));
 

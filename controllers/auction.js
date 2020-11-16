@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { USDT, BLOXY_GET_ETH_BALANCE } = require('../config');
+const { USDT, BLOXY_GET_ETH_BALANCE, CONTRACTS } = require('../config');
 const { Fetcher, Route, WETH} = require('@uniswap/sdk');
 
 let lastEthPrice = 0;
@@ -64,6 +64,7 @@ const getEstimatedTrees = () => {
         } catch (err) { reject(err) }
     })
 }
+
 
 module.exports = {
     getEstimatedTrees,

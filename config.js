@@ -4,9 +4,13 @@ const { ChainId, Token } = require('@uniswap/sdk');
 const Web3 = require('web3');
 const TOKEN_ABI = require('./ABIs/token.json');
 const BPD_ABI = require('./ABIs/bpd.json');
+const STAKING_ABI = require('./ABIs/staking.json');
+const AUCTION_ABI = require('./ABIs/auction.json');
 
 const AXION_CONTRACT = "0x7d85e23014f84e6e21d5663acd8751bef3562352"; 
 const BPD_CONTRACT = "0x6D5125d91Da1e7A56bC5ecB52060Be421eA48A93";
+const STAKING_CONTRACT = "0xcfd53eff4871b93ed7405f3f428c25f3bf60bbea";
+const AUCTION_CONTRACT = "0xB1475c18eA63F025308eED9950b9f954ACC742c0";
 const USDT_CONTRACT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
 const JACK_ADDRESS = "0xC1eD6bD35D19B7B0fC1fF57F17f53B589756fce0"; // Auction: 80% -> uniswap, 20% -> this wallet
 
@@ -27,9 +31,12 @@ const AXION = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(AXION_CONT
 const CONTRACTS = {
     token: new web3.eth.Contract(TOKEN_ABI, AXION_CONTRACT),
     bpd: new web3.eth.Contract(BPD_ABI, BPD_CONTRACT),
+    staking: new web3.eth.Contract(STAKING_ABI, STAKING_CONTRACT),
+    auction: new web3.eth.Contract(AUCTION_ABI, AUCTION_CONTRACT),
 }
 
 module.exports = {
+    web3,
     USDT,
     AXION,
     PROVIDER,

@@ -1,4 +1,4 @@
-const { getEstimatedTrees } = require('../controllers/auction');
+const { getEstimatedTrees, getPastEvents } = require('../controllers/auction');
 
 const express = require('express');
 const auction_router = express.Router();
