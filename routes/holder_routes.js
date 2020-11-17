@@ -6,6 +6,7 @@ const holder_router = express.Router();
 
 let holders_cache;
 let holder_updater;
+let db_client;
 
 const _saveToDB = (data, ref) => {
     if (ref && ref.includes("localhost")) {
@@ -13,10 +14,14 @@ const _saveToDB = (data, ref) => {
         return;
     }
     
-    if(data) {
-        db.connect(async (err) => {
-            if (!err)
+    if(db_client && data) 
+        db.db("AxionStats").collection("ecosystem_change").insertOne(data).catch(err => console.log(err))
+    else if(data) {
+        db.connect(async (err, client) => {
+            if (!err) {
+                db_client = client;
                 db.db("AxionStats").collection("ecosystem_change").insertOne(data).catch(err => console.log(err))
+            }
         });
     }
 }
@@ -71,16 +76,26 @@ holder_router.get('/holders/cache/clear/:key', async (req, res) => {
 })
 
 holder_router.get('/holders/history/:num', async (req, res) => {
-    db.connect(async (err) => {
-        if (!err) {
-            if (isNaN(Number(req.params.num))) 
-                res.status(401).send({ message: `${req.params.num} is not a number.`, invalid_param: req.params.num })
-            else {
-                const history = await db.db("AxionStats").collection("ecosystem_change").find().limit(Number(req.params.num)).toArray()
-                res.status(200).send(JSON.stringify(history))
-            }
-        } else res.sendStatus(500);
-    });
+    if (db_client)
+        if (isNaN(Number(req.params.num)))
+            res.status(401).send({ message: `${req.params.num} is not a number.`, invalid_param: req.params.num })
+        else {
+            const history = await db.db("AxionStats").collection("ecosystem_change").find().limit(Number(req.params.num)).toArray()
+            res.status(200).send(JSON.stringify(history))
+        }
+    else 
+        db.connect(async (err, client) => {
+            if (!err) {
+                db_client = client;
+
+                if (isNaN(Number(req.params.num)))
+                    res.status(401).send({ message: `${req.params.num} is not a number.`, invalid_param: req.params.num })
+                else {
+                    const history = await db.db("AxionStats").collection("ecosystem_change").find().limit(Number(req.params.num)).toArray()
+                    res.status(200).send(JSON.stringify(history))
+                }
+            } else res.sendStatus(500);
+        });
 })
 
 module.exports = holder_router;
