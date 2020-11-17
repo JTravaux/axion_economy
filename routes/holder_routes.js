@@ -15,7 +15,7 @@ const _saveToDB = (data, ref) => {
     }
     
     if(db_client && data) 
-        db.db("AxionStats").collection("ecosystem_change").insertOne(data).catch(err => console.log(err))
+        db_client.db("AxionStats").collection("ecosystem_change").insertOne(data).catch(err => console.log(err))
     else if(data) {
         db.connect(async (err, client) => {
             if (!err) {
@@ -80,7 +80,7 @@ holder_router.get('/holders/history/:num', async (req, res) => {
         if (isNaN(Number(req.params.num)))
             res.status(401).send({ message: `${req.params.num} is not a number.`, invalid_param: req.params.num })
         else {
-            const history = await db.db("AxionStats").collection("ecosystem_change").find().limit(Number(req.params.num)).toArray()
+            const history = await db_client.db("AxionStats").collection("ecosystem_change").find().limit(Number(req.params.num)).toArray()
             res.status(200).send(JSON.stringify(history))
         }
     else 
