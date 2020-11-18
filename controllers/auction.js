@@ -52,14 +52,14 @@ const getEstimatedTrees = () => {
             }
 
             // Calculate Trees
-            const ONE_PERCENT_ETH = lastEthBalance * 0.01; // 1% of the funds in this address
-            const USDT_FOR_TREES = ONE_PERCENT_ETH * Number(lastEthPrice);
+            const FIVE_PERCENT_ETH = lastEthBalance * 0.05; // 5% of the funds in this address
+            const USDT_FOR_TREES = FIVE_PERCENT_ETH * Number(lastEthPrice);
 
             // Save result and block number to
             resolve({ 
                 trees: Math.floor(USDT_FOR_TREES / 0.10), 
                 amount: USDT_FOR_TREES,
-                eth: ONE_PERCENT_ETH
+                eth: FIVE_PERCENT_ETH
             })
         } catch (err) { reject(err) }
     })
