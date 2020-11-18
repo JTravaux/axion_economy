@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { USDT, BLOXY_GET_ETH_BALANCE, CONTRACTS } = require('../config');
+const { USDT, BLOXY_GET_ETH_BALANCE, BLOXY_GET_WEEKLY_AUCTION_BALANCE, BLOXY_GET_DAILY_AUCTION_BALANCE } = require('../config');
 const { Fetcher, Route, WETH} = require('@uniswap/sdk');
 
 let lastEthPrice = 0;
@@ -65,7 +65,26 @@ const getEstimatedTrees = () => {
     })
 }
 
+const getWeeklyAuctionAXN = () => {
+    return new Promise(async (resolve, reject) => {
+        const result = await fetch(BLOXY_GET_WEEKLY_AUCTION_BALANCE);
+        const resultJSON = await result.json();
+        const AXN_BALANCE = resultJSON[0].balance;
+        resolve(AXN_BALANCE)
+    })
+}
+
+const getDailyAuctionAXN = () => {
+    return new Promise(async (resolve, reject) => {
+        const result = await fetch(BLOXY_GET_DAILY_AUCTION_BALANCE);
+        const resultJSON = await result.json();
+        const AXN_BAL = resultJSON.find(r => r.symbol === "AXN").balance;
+        resolve(AXN_BAL)
+    })
+}
 
 module.exports = {
     getEstimatedTrees,
+    getDailyAuctionAXN,
+    getWeeklyAuctionAXN,
 }

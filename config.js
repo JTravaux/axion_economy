@@ -21,6 +21,8 @@ const ETHPLORER_TOKEN_HOLDERS_ENDPOINT = `https://api.ethplorer.io/getTopTokenHo
 const BLOXY_TOKEN_HOLDERS_ENDPOINT = `https://api.bloxy.info/token/token_holders_list?token=${AXION_CONTRACT}&limit=100000&key=${BLOXY_API}&format=structure`
 const BLOXY_TOKEN_INFO_ENDPOINT = `https://api.bloxy.info/token/token_stat?token=${AXION_CONTRACT}&key=${BLOXY_API}&format=structure`
 const BLOXY_GET_ETH_BALANCE = `https://api.bloxy.info/address/balance?address=${JACK_ADDRESS}&chain=eth&key=${BLOXY_API}&format=structure`
+const BLOXY_GET_WEEKLY_AUCTION_BALANCE = `https://api.bloxy.info/address/balance?address=${AUCTION_CONTRACT}&chain=eth&key=${BLOXY_API}&format=structure`
+const BLOXY_GET_DAILY_AUCTION_BALANCE = `https://api.bloxy.info/address/balance?address=${STAKING_CONTRACT}&chain=eth&key=${BLOXY_API}&format=structure`
 const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/axion?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false";
 
 const ONE_TOKEN_18 = "1000000000000000000";
@@ -48,5 +50,7 @@ module.exports = {
     BLOXY_TOKEN_INFO_ENDPOINT,
     BLOXY_TOKEN_HOLDERS_ENDPOINT,
     COINGECKO_VOLUME_INFO_ENDPOINT,
+    BLOXY_GET_DAILY_AUCTION_BALANCE,
+    BLOXY_GET_WEEKLY_AUCTION_BALANCE,
     ETHPLORER_TOKEN_HOLDERS_ENDPOINT,
 }

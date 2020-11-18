@@ -26,3 +26,24 @@ app.listen(PORT, () => console.log(`Server up and running on port ${PORT}`));
 app.get('*', function (req, res) {
     res.sendFile(path.join(__dirname, './frontend', 'index.html'));
 });
+
+
+/*
+CURRENT ROUTES
+    staking/totals
+
+    stats/axn-eth
+    stats/usdt-axn
+    stats/volume
+    stats/market-cap
+    stats/total-supply
+
+    ecosystem/holders/all
+    ecosystem/holders/top
+    ecosystem/holders/count
+    ecosystem/holders/cache/clear/:key
+    ecosystem/holders/history/:num
+
+    bpd/pools
+    bpd/next
+*/
