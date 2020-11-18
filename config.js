@@ -27,6 +27,7 @@ const COINGECKO_VOLUME_INFO_ENDPOINT = "https://api.coingecko.com/api/v3/coins/a
 
 const ONE_TOKEN_18 = "1000000000000000000";
 const web3 = new Web3(INFURA_ENDPOINT);
+const INFURA_PROVIDER = new ethers.providers.InfuraProvider("homestead", "cd05a2c3e5a1409f9bbbdd69d48d9895")
 const PROVIDER = new ethers.providers.EtherscanProvider("homestead", "2AVWB5E47AG32JUNASSZM83A7XE71MQ92R");
 const USDT = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(USDT_CONTRACT), 6);
 const AXION = new Token(ChainId.MAINNET, Web3.utils.toChecksumAddress(AXION_CONTRACT), 18);
@@ -41,7 +42,7 @@ module.exports = {
     web3,
     USDT,
     AXION,
-    PROVIDER,
+    PROVIDER: INFURA_PROVIDER,
     CONTRACTS,
     ONE_TOKEN_18,
     AXION_CONTRACT,
