@@ -248,7 +248,7 @@ const _fetchAllStakeEvents = () => {
             }
 
             totalsCache = result;
-            //_saveToDB(result);
+            _saveToDB(result);
             resolve(result);
         }).catch(err => { reject(err) })
     })
