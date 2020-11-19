@@ -258,7 +258,7 @@ const startCacheUpdating = () => {
     totalsUpdater = setInterval(async () => { 
         currentBlock = await web3.eth.getBlockNumber();
         _fetchAllStakeEvents();
-    }, 1000 * (60 * 10)) // 10 minutes
+    }, 1000 * (60 * 5)) // 10 minutes
 }
 
 const getPastEvents = async () => {

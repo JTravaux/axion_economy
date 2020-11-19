@@ -35,7 +35,7 @@ const CONTRACTS = {
     token: new web3.eth.Contract(TOKEN_ABI, AXION_CONTRACT),
     bpd: new web3.eth.Contract(BPD_ABI, BPD_CONTRACT),
     staking: new web3.eth.Contract(STAKING_ABI, STAKING_CONTRACT),
-    auction: new web3.eth.Contract(AUCTION_ABI, AUCTION_CONTRACT),
+    auction: new web3.eth.Contract(AUCTION_ABI, AUCTION_CONTRACT)
 }
 
 module.exports = {
