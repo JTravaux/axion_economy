@@ -42,7 +42,7 @@ module.exports = {
     web3,
     USDT,
     AXION,
-    PROVIDER: INFURA_PROVIDER,
+    PROVIDER,
     CONTRACTS,
     ONE_TOKEN_18,
     AXION_CONTRACT,
