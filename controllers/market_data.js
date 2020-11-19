@@ -7,7 +7,6 @@ const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CON
 let usdtPrice = null;
 let lastCircSupply = 0;
 let supplyAPI = 'etherscan' // or bloxy
-let lastCircSupplyUpdater = null;
 
 const _getUpdateSupplyBloxy = () => {
     return new Promise(async (res, rej) => {
@@ -29,7 +28,6 @@ const _getUpdateSupplyEtherscan = () => {
     return new Promise(async (res, rej) => {
         CONTRACTS.token.methods.totalSupply().call().then(async (supply) => {
             const ADJUSTED_SUPPLY = web3.utils.toBN(supply).div(web3.utils.toBN(ONE_TOKEN_18)).toNumber();
-            
             res(ADJUSTED_SUPPLY)
         }).catch(err => {
             supplyAPI = "bloxy"
@@ -39,18 +37,6 @@ const _getUpdateSupplyEtherscan = () => {
     })
 }
 
-let supplyMethod = supplyAPI === 'etherscan' ? _getUpdateSupplyEtherscan : _getUpdateSupplyBloxy;
-
-const _startAutoUpdatingCircSupply = () => {
-    lastCircSupplyUpdater = setInterval(async () => {
-        try {
-            supplyMethod();
-        } catch {
-            clearInterval(lastCircSupplyUpdater)
-            lastCircSupplyUpdater = null;
-        }
-    }, 1000 * (60 * 1))
-}
 
 const getAxnPerEth = () => {
     return new Promise(async (resolve, reject) => {
@@ -90,30 +76,26 @@ const getMarketCap = async () => {
         const SUPPLY = await getTotalSupply();
 
         if (usdtPrice) {
-            const MARKET_CAP = SUPPLY * Number(usdtPrice);
+            const MARKET_CAP = SUPPLY.total_supply * Number(usdtPrice);
             resolve({ market_cap: MARKET_CAP });
         } else {
             try {
                 const PRICE = await getUsdtPerAxn();
-                const MARKET_CAP = SUPPLY * Number(PRICE.usdt)
+                const MARKET_CAP = SUPPLY.total_supply * Number(PRICE.usdt)
                 resolve({ market_cap: MARKET_CAP });
             } catch (err) { reject(err) }
         }
     })
 }
 
+const supplyMethod = supplyAPI === 'etherscan' ? _getUpdateSupplyEtherscan : _getUpdateSupplyBloxy;
 const getTotalSupply = async () => {
     return new Promise(async (resolve, reject) => {
-        if (!lastCircSupplyUpdater) {
-            try { 
-                lastCircSupply = await supplyMethod() 
-                _startAutoUpdatingCircSupply()
-                resolve(lastCircSupply);
-            }
-            catch (err) { reject(err) }
-        } 
-            
-        resolve(lastCircSupply);
+        try {
+            const supply = await supplyMethod();
+            resolve({ total_supply: supply });
+        }
+        catch (err) { reject(err) }
     })
 }
 

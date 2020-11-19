@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { USDT, BLOXY_GET_ETH_BALANCE, BLOXY_GET_WEEKLY_AUCTION_BALANCE, BLOXY_GET_DAILY_AUCTION_BALANCE } = require('../config');
+const { USDT, BLOXY_GET_ETH_BALANCE, BLOXY_GET_WEEKLY_AUCTION_BALANCE, BLOXY_GET_DAILY_AUCTION_BALANCE, PROVIDER } = require('../config');
 const { Fetcher, Route, WETH} = require('@uniswap/sdk');
 
 let lastEthPrice = 0;
@@ -11,7 +11,7 @@ let ethBalanceUpdater = null;
 const _startETHPriceAutoUpdater = () => {
     ethPriceUpdater = setInterval(async () => {
         try {
-            const pair = await Fetcher.fetchPairData(USDT, WETH[USDT.chainId])
+            const pair = await Fetcher.fetchPairData(USDT, WETH[USDT.chainId], PROVIDER)
             lastEthPrice = new Route([pair], WETH[USDT.chainId]).midPrice.toSignificant(6);
         } catch (err) {
             clearInterval(ethPriceUpdater);
@@ -38,7 +38,7 @@ const getEstimatedTrees = () => {
         try {
             // Get ETH Price
             if (!ethPriceUpdater) {
-                const pair = await Fetcher.fetchPairData(USDT, WETH[USDT.chainId])
+                const pair = await Fetcher.fetchPairData(USDT, WETH[USDT.chainId], PROVIDER)
                 lastEthPrice = new Route([pair], WETH[USDT.chainId]).midPrice.toSignificant(6);
                 _startETHPriceAutoUpdater();
             }
@@ -52,7 +52,7 @@ const getEstimatedTrees = () => {
             }
 
             // Calculate Trees
-            const FIVE_PERCENT_ETH = lastEthBalance * 0.05; // 5% of the funds in this address
+            const FIVE_PERCENT_ETH = lastEthBalance * 0.05;
             const USDT_FOR_TREES = FIVE_PERCENT_ETH * Number(lastEthPrice);
 
             // Save result and block number to
