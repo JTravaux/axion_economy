@@ -130,6 +130,13 @@ const _getSavedData = () => {
     })
 }
 
+const _splitInteger = (number, parts) => {
+    const remainder = number % parts
+    const baseValue = (number - remainder) / parts
+
+    return Array(parts).fill(baseValue).fill(baseValue + 1, parts - remainder)
+}
+
 const _saveToDB = (data) => {
     const doc = {
         timestamp: Date.now(),
@@ -215,13 +222,28 @@ const _getPastStakeEvents = async () => {
         const EVENTS = await _getEvents("Stake", CONTRACT_FIRST_BLOCK, currentBlock);
         return finalizeEvents(EVENTS);
     } catch (err) {
-        const HALF_BLOCK = Math.floor((CONTRACT_FIRST_BLOCK + currentBlock) / 2)
-        const RESULTS = await Promise.all([
-            _getEvents("Stake", CONTRACT_FIRST_BLOCK, HALF_BLOCK),
-            _getEvents("Stake", HALF_BLOCK + 1, currentBlock)
-        ])
 
-        return finalizeEvents(RESULTS[0].concat(RESULTS[1]))
+        const BLOCKS_FROM_START = currentBlock - CONTRACT_FIRST_BLOCK; // 65174
+        const BLOCK_CHUNKS = _splitInteger(BLOCKS_FROM_START, 5)
+      
+        let startBlock = CONTRACT_FIRST_BLOCK;
+        let endBlock = CONTRACT_FIRST_BLOCK + BLOCK_CHUNKS[0];
+        let promises = [];
+
+        for(let i = 0; i < BLOCK_CHUNKS.length; ++i){
+            promises.push(_getEvents("Stake", startBlock, endBlock))
+            startBlock = endBlock + 1;
+            endBlock += BLOCK_CHUNKS[i+1]
+        }
+       
+        try {
+            const RESULTS = await Promise.all(promises)
+            return finalizeEvents([].concat.apply([], RESULTS))
+        } catch (err) {
+            if (totalsCache)
+                return totalsCache;
+            else return null;
+        }
     }
 }
 
