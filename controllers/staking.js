@@ -265,7 +265,7 @@ const getPastEvents = async () => {
     const BLOCK = await web3.eth.getBlockNumber();
     currentBlock = BLOCK;
     
-    return new Promise(async (resolve, rehect) => {
+    return new Promise(async (resolve, reject) => {
         if (!totalsCache) {
             try {
                 const RESULTS = await _fetchAllStakeEvents();
