@@ -138,19 +138,13 @@ const _splitInteger = (number, parts) => {
 }
 
 const _saveToDB = (data) => {
-    const doc = {
-        timestamp: Date.now(),
-        block: currentBlock,
-        data
-    }
-
     if (db_client && data)
-        db_client.db("AxionStats").collection("staking_stats").insertOne(doc).catch(err => console.log(err))
+        db_client.db("AxionStats").collection("staking_stats").insertOne(data).catch(err => console.log(err))
     else if (data) {
         db.connect(async (err, client) => {
             if (!err) {
                 db_client = client;
-                db.db("AxionStats").collection("staking_stats").insertOne(doc).catch(err => console.log(err))
+                db.db("AxionStats").collection("staking_stats").insertOne(data).catch(err => console.log(err))
             }
         });
     }
