@@ -141,9 +141,7 @@ const _saveToDB = (data) => {
     const doc = {
         timestamp: Date.now(),
         block: currentBlock,
-        staked: data[0],
-        unstaked: data[1],
-        totals: data[2]
+        data
     }
 
     if (db_client && data)
