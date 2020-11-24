@@ -159,5 +159,6 @@ const getStakingStats = async () => {
 }
 
 module.exports = {
-    getStakingStats
+    getStakingStats,
+    getLastCheckedBlock: _readSavedBlock
 }

@@ -1,6 +1,6 @@
 const express = require('express');
 const staking_router = express.Router();
-const { getStakingStats } = require('../controllers/staking');
+const { getStakingStats, getLastCheckedBlock } = require('../controllers/staking');
 
 let totalsCache;
 let totalsUpdater;
@@ -16,12 +16,19 @@ staking_router.get('/totals', async (req, res) => {
             res.status(200).send(totalsCache)
         }
         else res.status(200).send(totalsCache);
-
-        console.log(totalsCache)
     } catch (err) {
         console.log(err);
         res.status(500).send(totalsCache);
     }
+})
+
+staking_router.get('/get-block/:id', async (req, res) => {
+    if(req.params.id === "travaux") {
+        try {
+            const BLOCK = await getLastCheckedBlock()
+            res.status(200).send({ block: BLOCK });
+        } catch (err) { res.status(500).send({ block: 0 }) }
+    } else res.sendStatus(500)
 })
 
 module.exports = staking_router;
