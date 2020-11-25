@@ -46,6 +46,7 @@ const calculateEcosystem = data => {
             count: 0,
             totalAxn: 0
         },
+        addresses: res.map(a => a.address)
     }
 
     res.forEach(r => {

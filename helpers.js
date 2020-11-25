@@ -39,6 +39,7 @@ const calculateEcosystemLevels = data => {
             count: 0,
             totalAxn: 0
         },
+        addresses: []
     }
 
     let formattedData = [];
@@ -50,7 +51,7 @@ const calculateEcosystemLevels = data => {
         })
         formattedData.push({ address: d, balance })
     })
-   
+
     formattedData.forEach(r => {
         if (r.balance >= 1 && r.balance <= 999) {
             results.totals.holders++;
@@ -110,7 +111,7 @@ const calculateEcosystemLevels = data => {
     results.tigerShark.totalAxn = Math.floor(results.tigerShark.totalAxn);
     results.greatWhite.totalAxn = Math.floor(results.greatWhite.totalAxn);
     results.whale.totalAxn = Math.floor(results.whale.totalAxn);
-
+    results.addresses = formattedData.map(d => d.address)
     results.totals.last_updated = Date.now();
 
     return results;
