@@ -1,13 +1,6 @@
-const fetch = require('node-fetch');
-const { BLOXY_TOKEN_HOLDERS_ENDPOINT, ETHPLORER_TOKEN_HOLDERS_ENDPOINT } = require('../config');
+const { ONE_TOKEN_18 } = require('./config');
 
-const calculateEcosystem = data => {
-    const res = data.filter(h => 
-        h.balance >= 1 && 
-        h.address_type === "Wallet" && 
-        h.address !== "0xe8b283b606a212d82036f74f88177375125440f6"
-    );
-
+const calculateEcosystemLevels = data => {
     const results = {
         totals: {
             holders: 0,
@@ -34,7 +27,7 @@ const calculateEcosystem = data => {
             count: 0,
             totalAxn: 0
         },
-        tigerShark:{
+        tigerShark: {
             count: 0,
             totalAxn: 0
         },
@@ -48,7 +41,17 @@ const calculateEcosystem = data => {
         },
     }
 
-    res.forEach(r => {
+    let formattedData = [];
+
+    Object.keys(data).forEach(d => {
+        let balance = 0;
+        data[d].forEach(r => {
+            balance += (r.amount / ONE_TOKEN_18)
+        })
+        formattedData.push({ address: d, balance })
+    })
+   
+    formattedData.forEach(r => {
         if (r.balance >= 1 && r.balance <= 999) {
             results.totals.holders++;
             results.shrimp.count++;
@@ -113,45 +116,14 @@ const calculateEcosystem = data => {
     return results;
 }
 
-const getAllHolders = async () => {
-    try {
-        const res = await fetch(BLOXY_TOKEN_HOLDERS_ENDPOINT);
-        const results = await res.json();
+const splitInteger = (number, parts) => {
+    const remainder = number % parts
+    const baseValue = (number - remainder) / parts
 
-        let holders = results.map(h => { return { address: h.address, balance: h.balance, address_type: h.address_type }})
-        return calculateEcosystem(holders);
-    } catch (err) {
-        console.log(err)
-        return [];
-    }
-}
-
-const getHolderCount = async () => {
-    try {
-        const res = await fetch(BLOXY_TOKEN_HOLDERS_ENDPOINT);
-        const results = await res.json();
-        return results.filter(h => h.balance >= 0.00000001).length; // 0.00000001 just made it closest to etherscan at the time.
-    } catch (err) {
-        console.log(err)
-        return [];
-    }
-}
-
-const get1000Holders = async () => {
-    try {
-        const res = await fetch(ETHPLORER_TOKEN_HOLDERS_ENDPOINT);
-        const results = await res.json();
-
-        let holders = results.holders.filter(h => h.balance >= 1).map(h => { return { address: h.address, balance: h.balance } })
-        return calculateEcosystem(holders);
-    } catch (err) {
-        console.log(err)
-        return [];
-    }
+    return Array(parts).fill(baseValue).fill(baseValue + 1, parts - remainder)
 }
 
 module.exports = {
-    getAllHolders,
-    get1000Holders,
-    getHolderCount,
+    splitInteger,
+    calculateEcosystemLevels
 }

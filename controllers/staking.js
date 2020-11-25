@@ -1,16 +1,10 @@
 const fs = require("fs");
 const { getAll, addMany } = require('../controllers/db');
+const { calculateEcosystemLevels, splitInteger } = require('../helpers');
 const { CONTRACTS, ONE_TOKEN_18 , web3} = require('../config');
 
 const CONTRACT_FIRST_BLOCK = 11236016;
 const BLOCK_FILE_PATH = `last_block.txt`;
-
-const _splitInteger = (number, parts) => {
-    const remainder = number % parts
-    const baseValue = (number - remainder) / parts
-
-    return Array(parts).fill(baseValue).fill(baseValue + 1, parts - remainder)
-}
 
 const _saveBlock = block => {
     fs.writeFile(BLOCK_FILE_PATH, `${block}`, (err) => {
@@ -46,16 +40,17 @@ const _saveRawDataToDB = raw => {
         addMany("unstake_events_raw", raw[1])
 }
 
-// Get "type" evenmts from the staking contract.
+// Get "type" events from the staking contract.
 const _getEvents = async (type, fromBlock, toBlock) => {
     const CURRENT_BLOCK = await web3.eth.getBlockNumber();
+    process.env.BLOCK = CURRENT_BLOCK
     _saveBlock(CURRENT_BLOCK);
 
     return new Promise(resolve => {
         CONTRACTS.staking.getPastEvents(type, { fromBlock, toBlock }, async (error, events) => {
             if (error) {
                 const BLOCKS_FROM_START = CURRENT_BLOCK - CONTRACT_FIRST_BLOCK;
-                const BLOCK_CHUNKS = _splitInteger(BLOCKS_FROM_START, 10)
+                const BLOCK_CHUNKS = splitInteger(BLOCKS_FROM_START, 10)
                 
                 let promises = [];
                 let startBlock = CONTRACT_FIRST_BLOCK;
@@ -121,7 +116,7 @@ const _processEvents = (stake_events, unstake_events) => {
     }
 }
 
-const _calculateStakingStats = async () => {
+const _calculateStakingStats = async (host) => {
 
     // Get saved stakes & unstakes from DB
     const SAVED_EVENTS = await Promise.all([ 
@@ -136,8 +131,9 @@ const _calculateStakingStats = async () => {
         _getEvents("Unstake", LAST_CHECKED_BLOCK + 1, 'latest') 
     ])
 
-    _saveRawDataToDB(NEW_EVENTS);
-
+    if (!host.includes("localhost")) 
+        _saveRawDataToDB(NEW_EVENTS);
+   
     let results = _processEvents(
         SAVED_EVENTS[0].concat(NEW_EVENTS[0]), 
         SAVED_EVENTS[1].concat(NEW_EVENTS[1])
@@ -149,16 +145,36 @@ const _calculateStakingStats = async () => {
     return results;
 }
 
-const getStakingStats = async () => {
+const getStakingStats = async (host) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const RESULTS = await _calculateStakingStats();
+            const RESULTS = await _calculateStakingStats(host);
             resolve(RESULTS);
+        } catch (err) { reject(err) }
+    })
+}
+
+const getEcosystemLevels = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let unique_addresses = {}
+            const STAKE_EVENTS = await getAll("stake_events_raw");
+            const UNSTAKE_EVENTS = await getAll("unstake_events_raw");
+            
+            STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => { 
+                if (!unique_addresses[e.address])
+                    unique_addresses[e.address] = [e]
+                else
+                    unique_addresses[e.address].push(e)
+            })
+
+            resolve(calculateEcosystemLevels(unique_addresses));
         } catch (err) { reject(err) }
     })
 }
 
 module.exports = {
     getStakingStats,
+    getEcosystemLevels,
     getLastCheckedBlock: _readSavedBlock
 }
