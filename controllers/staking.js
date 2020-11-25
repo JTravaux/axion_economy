@@ -173,8 +173,28 @@ const getEcosystemLevels = async () => {
     })
 }
 
+const getStakerEcoData = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let unique_addresses = {}
+            const STAKE_EVENTS = await getAll("stake_events_raw");
+            const UNSTAKE_EVENTS = await getAll("unstake_events_raw");
+
+            STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => {
+                if (!unique_addresses[e.address])
+                    unique_addresses[e.address] = [e]
+                else
+                    unique_addresses[e.address].push(e)
+            })
+
+            resolve(unique_addresses);
+        } catch (err) { reject(err) }
+    })
+}
+
 module.exports = {
     getStakingStats,
+    getStakerEcoData,
     getEcosystemLevels,
     getLastCheckedBlock: _readSavedBlock
 }
