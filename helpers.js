@@ -1,4 +1,4 @@
-const _calculateEcosystemLevels = data => {
+const calculateEcosystemLevels = data => {
     let unique_addresses = [];
     const results = {
         totals: {
@@ -93,13 +93,6 @@ const _calculateEcosystemLevels = data => {
     return results;
 }
 
-const calculateEcosystemLevels = (liquid, staked, combined) => {
-    const liquid_ecosystem = _calculateEcosystemLevels(liquid);
-    const staking_ecosystem = _calculateEcosystemLevels(staked);
-    const combined_ecosystem = _calculateEcosystemLevels(combined);
-    return { liquid_ecosystem, staking_ecosystem, combined_ecosystem }
-}
-
 const splitInteger = (number, parts) => {
     const remainder = number % parts
     const baseValue = (number - remainder) / parts
@@ -109,5 +102,5 @@ const splitInteger = (number, parts) => {
 
 module.exports = {
     splitInteger,
-    calculateEcosystemLevels
+    calculateEcosystemLevels,
 }

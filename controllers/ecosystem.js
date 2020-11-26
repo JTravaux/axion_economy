@@ -24,23 +24,31 @@ const calculateEcosystem = () => {
             // Format STAKER data
             Object.keys(STAKER_DATA).forEach(addr => {
                 let balance = 0;
-                STAKER_DATA[addr].forEach(r => { balance += (r.amount / ONE_TOKEN_18) })
-                staked.push({ address: addr.toUpperCase(), balance })
+                STAKER_DATA[addr].forEach(r => { balance += Number(r.amount) })
+                staked.push({ address: addr.toUpperCase(), balance: balance/ONE_TOKEN_18 })
             })
+
+            // Get first data (seperate)
+            const LIQUID_RESULTS = calculateEcosystemLevels(liquid);
+            const STAKED_RESULTS = calculateEcosystemLevels(staked);
 
             // Combine address who have both staked & liquid AXN
             staked.concat(liquid).forEach(tc => {
-                const ADDRESS = tc.address;
-                const BALANCE = tc.balance;
-                const IDX = combined.findIndex(c => c.address === ADDRESS);
+                const IDX = combined.findIndex(c => c.address === tc.address);
                 if (IDX === -1)
                     combined.push(tc)
-                else
-                    combined[IDX].balance += BALANCE
+                else 
+                    combined[IDX].balance += tc.balance 
             })
-
-            const RESULT = calculateEcosystemLevels(liquid, staked, combined)
-            resolve(RESULT)
+            
+            // Get final data
+            const COMBINED_RESULTS = calculateEcosystemLevels(combined)
+            
+            resolve({ 
+                liquid_ecosystem:   {...LIQUID_RESULTS}, 
+                staking_ecosystem:  {...STAKED_RESULTS}, 
+                combined_ecosystem: {...COMBINED_RESULTS}
+            })
         } catch (err) {
             console.log(err);
             reject(err)
