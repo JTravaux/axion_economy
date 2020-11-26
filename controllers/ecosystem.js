@@ -8,6 +8,7 @@ const calculateEcosystem = () => {
         try {
             const LIQUID_DATA = await getLiquidEcoData();
             const STAKER_DATA = await getStakerEcoData();
+
             let liquid = []
             let staked = []
             let combined = [];
