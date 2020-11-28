@@ -42,6 +42,7 @@ const _saveRawDataToDB = raw => {
 
 // Get "type" events from the staking contract.
 const _getEvents = async (type, fromBlock, toBlock) => {
+
     const CURRENT_BLOCK = await web3.eth.getBlockNumber();
     process.env.BLOCK = CURRENT_BLOCK
     _saveBlock(CURRENT_BLOCK);

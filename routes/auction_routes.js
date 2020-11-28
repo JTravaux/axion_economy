@@ -1,4 +1,4 @@
-const { getEstimatedTrees, getDailyAuctionAXN, getWeeklyAuctionAXN } = require('../controllers/auction');
+const { getEstimatedTrees, getDailyAuctionAXN, getWeeklyAuctionAXN, getAuctions, getCurrentAuctionEnd } = require('../controllers/auction');
 
 const express = require('express');
 const auction_router = express.Router();
@@ -31,6 +31,21 @@ auction_router.get('/weekly', async (req, res) => {
         console.log(err);
         res.sendStatus(500);
     }
+})
+
+auction_router.get('/auctions', async (req, res) => {
+    try {
+        const results = await getAuctions();
+        res.status(200).send(results)
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+})
+
+auction_router.get('/countdown', async (req, res) => {
+    const result = await getCurrentAuctionEnd();
+    res.status(200).send(result)
 })
 
 module.exports = auction_router;

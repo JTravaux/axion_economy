@@ -1,7 +1,6 @@
-const web3 = require('web3');
 const fetch = require('node-fetch');
 const { Fetcher, ChainId, Route, WETH, Trade, TokenAmount, TradeType } = require('@uniswap/sdk');
-const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CONTRACTS, BLOXY_TOKEN_INFO_ENDPOINT } = require('../config');
+const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CONTRACTS, BLOXY_TOKEN_INFO_ENDPOINT, web3 } = require('../config');
 
 // METHODS
 let usdtPrice = null;
