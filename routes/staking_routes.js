@@ -34,7 +34,7 @@ staking_router.get('/get-block/:id', async (req, res) => {
 })
 
 staking_router.get('/block-env-test', async (req, res) => {
-    res.status(200).send({ block: process.env.BLOCK });
+    res.status(200).send({ block: process.env.LAST_CHECKED_BLOCK });
 })
 
 let stakingEcoCache;

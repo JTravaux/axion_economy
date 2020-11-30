@@ -44,7 +44,7 @@ const _saveRawDataToDB = raw => {
 const _getEvents = async (type, fromBlock, toBlock) => {
 
     const CURRENT_BLOCK = await web3.eth.getBlockNumber();
-    process.env.BLOCK = CURRENT_BLOCK
+    process.env.LAST_CHECKED_BLOCK = CURRENT_BLOCK
     _saveBlock(CURRENT_BLOCK);
 
     return new Promise(resolve => {
