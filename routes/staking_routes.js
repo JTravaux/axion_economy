@@ -7,13 +7,11 @@ let totalsUpdater;
 let updateMinutes = 10;
 
 staking_router.get('/totals', async (req, res) => {
-    const HOST = req.headers.host;
-
     try {
         if (!totalsUpdater){
-            totalsCache = await getStakingStats(HOST);
+            totalsCache = await getStakingStats();
             totalsUpdater = setInterval(async () => {
-                totalsCache = await getStakingStats(HOST);
+                totalsCache = await getStakingStats();
             }, (1000 * 60) * updateMinutes)
             res.status(200).send(totalsCache)
         }

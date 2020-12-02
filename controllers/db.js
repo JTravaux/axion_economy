@@ -14,13 +14,15 @@ if (!db_client) {
     });
 }
 
-const getAll = col => db_client.db(DB_NAME).collection(col).find().toArray();
+const getAll = col => db_client.db(DB_NAME).collection(col).find({}).toArray();
 const getLatest = col => db_client.db(DB_NAME).collection(col).find().limit(1).sort({ $natural: -1 })
 const addOne = (col, doc) => db_client.db(DB_NAME).collection(col).insertOne(doc);
 const addMany = (col, data) => db_client.db(DB_NAME).collection(col).insertMany(data);
+const drop = col => db_client.db(DB_NAME).collection(col).deleteMany({});
 
 module.exports = {
     db,
+    drop,
     getAll,
     addOne,
     addMany,

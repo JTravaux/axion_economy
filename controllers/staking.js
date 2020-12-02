@@ -1,9 +1,11 @@
 const fs = require("fs");
-const { getAll, addMany } = require('../controllers/db');
+const { getAll, addMany, drop } = require('../controllers/db');
 const { calculateEcosystemLevels, splitInteger, uniqueify } = require('../helpers');
 const { CONTRACTS, ONE_TOKEN_18 , web3} = require('../config');
 
 const CONTRACT_FIRST_BLOCK = 11236016;
+const STAKE_EVENTS_COL = "stake_events_raw";
+const UNSTAKE_EVENTS_COL = "unstake_events_raw";
 const BLOCK_FILE_PATH = `last_block.txt`;
 
 const _saveBlock = block => {
@@ -33,18 +35,20 @@ const _cleanData = data => data.map(d => {
     }
 })
 
-const _saveRawDataToDB = async (raw) => {
-    if(raw[0].length > 0)
-        await addMany("stake_events_raw", uniqueify(raw[0]))
-    if (raw[1].length > 0)
-        await addMany("unstake_events_raw", uniqueify(raw[1]))
+const _saveRawDataToDB = async (stake_events, unstake_events) => {
+    if (stake_events.length > 0) {
+        await drop(STAKE_EVENTS_COL);
+        await addMany(STAKE_EVENTS_COL, stake_events)
+    }
+    if (unstake_events.length > 0) {
+        await drop(UNSTAKE_EVENTS_COL);
+        await addMany(UNSTAKE_EVENTS_COL, unstake_events)
+    }
 }
 
 // Get "type" events from the staking contract.
 const _getEvents = async (type, fromBlock, toBlock) => {
-
     const CURRENT_BLOCK = await web3.eth.getBlockNumber();
-    process.env.LAST_CHECKED_BLOCK = CURRENT_BLOCK
     _saveBlock(CURRENT_BLOCK);
 
     return new Promise(resolve => {
@@ -117,12 +121,12 @@ const _processEvents = (stake_events, unstake_events) => {
     }
 }
 
-const _calculateStakingStats = async (host) => {
+const _calculateStakingStats = async () => {
 
     // Get saved stakes & unstakes from DB
     const SAVED_EVENTS = await Promise.all([ 
-        getAll("stake_events_raw"), 
-        getAll("unstake_events_raw") 
+        getAll(STAKE_EVENTS_COL), 
+        getAll(UNSTAKE_EVENTS_COL) 
     ])
 
     // Get updated stakes & unstakes from last saved block
@@ -132,24 +136,21 @@ const _calculateStakingStats = async (host) => {
         _getEvents("Unstake", LAST_CHECKED_BLOCK + 1, 'latest') 
     ])
 
-    if (!host.includes("localhost")) 
-        _saveRawDataToDB(NEW_EVENTS);
-   
-    let results = _processEvents(
-        SAVED_EVENTS[0].concat(NEW_EVENTS[0]), 
-        SAVED_EVENTS[1].concat(NEW_EVENTS[1])
-    );
+    const ALL_STAKE_EVENTS = uniqueify(SAVED_EVENTS[0].concat(NEW_EVENTS[0]));
+    const ALL_UNSTAKE_EVENTS = uniqueify(SAVED_EVENTS[1].concat(NEW_EVENTS[1]));
+    _saveRawDataToDB(ALL_STAKE_EVENTS, ALL_UNSTAKE_EVENTS);
 
     // Return the results
+    let results = _processEvents(ALL_STAKE_EVENTS, ALL_UNSTAKE_EVENTS);
     results["block"] = LAST_CHECKED_BLOCK;
     results["timestamp"] = Date.now();
     return results;
 }
 
-const getStakingStats = async (host) => {
+const getStakingStats = async () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const RESULTS = await _calculateStakingStats(host);
+            const RESULTS = await _calculateStakingStats();
             resolve(RESULTS);
         } catch (err) { reject(err) }
     })
@@ -159,8 +160,8 @@ const getEcosystemLevels = async () => {
     return new Promise(async (resolve, reject) => {
         try {
             let unique_addresses = {}
-            const STAKE_EVENTS = await getAll("stake_events_raw");
-            const UNSTAKE_EVENTS = await getAll("unstake_events_raw");
+            const STAKE_EVENTS = await getAll(STAKE_EVENTS_COL);
+            const UNSTAKE_EVENTS = await getAll(UNSTAKE_EVENTS_COL);
             
             STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => { 
                 if (!unique_addresses[e.address])
@@ -178,8 +179,8 @@ const getStakerEcoData = async () => {
     return new Promise(async (resolve, reject) => {
         try {
             let unique_addresses = {}
-            const STAKE_EVENTS = await getAll("stake_events_raw");
-            const UNSTAKE_EVENTS = await getAll("unstake_events_raw");
+            const STAKE_EVENTS = await getAll(STAKE_EVENTS_COL);
+            const UNSTAKE_EVENTS = await getAll(UNSTAKE_EVENTS_COL);
 
             STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => {
                 if (!unique_addresses[e.address])
