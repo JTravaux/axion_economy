@@ -37,12 +37,14 @@ const _cleanData = data => data.map(d => {
 
 const _saveRawDataToDB = async (stake_events, unstake_events) => {
     if (stake_events.length > 0) {
-        await drop(STAKE_EVENTS_COL);
-        await addMany(STAKE_EVENTS_COL, stake_events)
+        drop(STAKE_EVENTS_COL).then(() => {
+            addMany(STAKE_EVENTS_COL, stake_events)
+        })
     }
     if (unstake_events.length > 0) {
-        await drop(UNSTAKE_EVENTS_COL);
-        await addMany(UNSTAKE_EVENTS_COL, unstake_events)
+        drop(UNSTAKE_EVENTS_COL).then(() => {
+            addMany(UNSTAKE_EVENTS_COL, unstake_events)
+        })
     }
 }
 
@@ -136,8 +138,8 @@ const _calculateStakingStats = async () => {
         _getEvents("Unstake", LAST_CHECKED_BLOCK + 1, 'latest') 
     ])
 
-    const ALL_STAKE_EVENTS = uniqueify(SAVED_EVENTS[0].concat(NEW_EVENTS[0]));
-    const ALL_UNSTAKE_EVENTS = uniqueify(SAVED_EVENTS[1].concat(NEW_EVENTS[1]));
+    const ALL_STAKE_EVENTS = uniqueify([...SAVED_EVENTS[0], ...NEW_EVENTS[0]]);
+    const ALL_UNSTAKE_EVENTS = uniqueify([...SAVED_EVENTS[1], ...NEW_EVENTS[1]]);
     _saveRawDataToDB(ALL_STAKE_EVENTS, ALL_UNSTAKE_EVENTS);
 
     // Return the results
