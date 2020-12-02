@@ -6,7 +6,7 @@ const { CONTRACTS, ONE_TOKEN_18 , web3} = require('../config');
 const CONTRACT_FIRST_BLOCK = 11236016;
 const STAKE_EVENTS_COL = "stake_events_raw";
 const UNSTAKE_EVENTS_COL = "unstake_events_raw";
-const BLOCK_FILE_PATH = `last_block.txt`;
+const BLOCK_FILE_PATH = `block.txt`;
 
 const _saveBlock = block => {
     fs.writeFile(BLOCK_FILE_PATH, `${block}`, (err) => {
