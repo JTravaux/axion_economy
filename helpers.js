@@ -100,7 +100,10 @@ const splitInteger = (number, parts) => {
     return Array(parts).fill(baseValue).fill(baseValue + 1, parts - remainder)
 }
 
+const uniqueify = a => [...new Set(a.map(o => JSON.stringify(o)))].map(s => JSON.parse(s))
+
 module.exports = {
+    uniqueify,
     splitInteger,
     calculateEcosystemLevels,
 }

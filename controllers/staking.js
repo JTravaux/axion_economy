@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { getAll, addMany } = require('../controllers/db');
-const { calculateEcosystemLevels, splitInteger } = require('../helpers');
+const { calculateEcosystemLevels, splitInteger, uniqueify } = require('../helpers');
 const { CONTRACTS, ONE_TOKEN_18 , web3} = require('../config');
 
 const CONTRACT_FIRST_BLOCK = 11236016;
@@ -33,11 +33,11 @@ const _cleanData = data => data.map(d => {
     }
 })
 
-const _saveRawDataToDB = raw => {
+const _saveRawDataToDB = async (raw) => {
     if(raw[0].length > 0)
-        addMany("stake_events_raw", raw[0])
+        await addMany("stake_events_raw", uniqueify(raw[0]))
     if (raw[1].length > 0)
-        addMany("unstake_events_raw", raw[1])
+        await addMany("unstake_events_raw", uniqueify(raw[1]))
 }
 
 // Get "type" events from the staking contract.
