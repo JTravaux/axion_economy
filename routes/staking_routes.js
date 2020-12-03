@@ -1,6 +1,6 @@
 const express = require('express');
 const staking_router = express.Router();
-const { getStakingStats, getLastCheckedBlock, getEcosystemLevels } = require('../controllers/staking');
+const { getStakingStats, getEcosystemLevels } = require('../controllers/staking');
 
 let totalsCache;
 let totalsUpdater;
@@ -20,19 +20,6 @@ staking_router.get('/totals', async (req, res) => {
         console.log(err);
         res.status(500).send(totalsCache);
     }
-})
-
-staking_router.get('/get-block/:id', async (req, res) => {
-    if(req.params.id === "travaux") {
-        try {
-            const BLOCK = await getLastCheckedBlock()
-            res.status(200).send({ block: BLOCK });
-        } catch (err) { res.status(500).send({ block: 0 }) }
-    } else res.sendStatus(500)
-})
-
-staking_router.get('/block-env-test', async (req, res) => {
-    res.status(200).send({ block: process.env.LAST_CHECKED_BLOCK });
 })
 
 let stakingEcoCache;

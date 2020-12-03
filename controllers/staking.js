@@ -6,19 +6,21 @@ const { CONTRACTS, ONE_TOKEN_18 , web3} = require('../config');
 const CONTRACT_FIRST_BLOCK = 11236016;
 const STAKE_EVENTS_COL = "stake_events_raw";
 const UNSTAKE_EVENTS_COL = "unstake_events_raw";
-const BLOCK_FILE_PATH = `block.txt`;
+const STAKE_EVENTS_FILE = "stake_events_raw.txt";
+const UNSTAKE_EVENTS_FILE = "unstake_events_raw.txt";
 
-const _saveBlock = block => {
-    fs.writeFile(BLOCK_FILE_PATH, `${block}`, (err) => {
+const _saveEvents = (path, events) => {
+    const SORTED_EVENTS = events.sort((a, b) => b.block - a.block);
+    fs.writeFile(path, JSON.stringify(SORTED_EVENTS), (err) => {
         if (err) console.log(err);
     });
 }
 
-const _readSavedBlock = () => {
+const _readSavedEvents = path => {
     return new Promise(resolve => {
-        fs.readFile(BLOCK_FILE_PATH, "utf-8", (err, data) => {
-            if (err) return resolve(CONTRACT_FIRST_BLOCK);
-            else return resolve(Number(data))
+        fs.readFile(path, "utf-8", (err, data) => {
+            if (err) return resolve([])
+            else return resolve(JSON.parse(data))
         });
     })
 }
@@ -35,27 +37,12 @@ const _cleanData = data => data.map(d => {
     }
 })
 
-const _saveRawDataToDB = async (stake_events, unstake_events) => {
-    if (stake_events.length > 0) {
-        drop(STAKE_EVENTS_COL).then(() => {
-            addMany(STAKE_EVENTS_COL, stake_events)
-        })
-    }
-    if (unstake_events.length > 0) {
-        drop(UNSTAKE_EVENTS_COL).then(() => {
-            addMany(UNSTAKE_EVENTS_COL, unstake_events)
-        })
-    }
-}
-
 // Get "type" events from the staking contract.
 const _getEvents = async (type, fromBlock, toBlock) => {
-    const CURRENT_BLOCK = await web3.eth.getBlockNumber();
-    _saveBlock(CURRENT_BLOCK);
-
     return new Promise(resolve => {
         CONTRACTS.staking.getPastEvents(type, { fromBlock, toBlock }, async (error, events) => {
             if (error) {
+                const CURRENT_BLOCK = await web3.eth.getBlockNumber();
                 const BLOCKS_FROM_START = CURRENT_BLOCK - CONTRACT_FIRST_BLOCK;
                 const BLOCK_CHUNKS = splitInteger(BLOCKS_FROM_START, 10)
                 
@@ -125,26 +112,35 @@ const _processEvents = (stake_events, unstake_events) => {
 
 const _calculateStakingStats = async () => {
 
-    // Get saved stakes & unstakes from DB
+    // Get saved stakes & unstakes from file
     const SAVED_EVENTS = await Promise.all([ 
-        getAll(STAKE_EVENTS_COL), 
-        getAll(UNSTAKE_EVENTS_COL) 
+        _readSavedEvents(STAKE_EVENTS_FILE), 
+        _readSavedEvents(UNSTAKE_EVENTS_FILE) 
     ])
 
+    let lastSavedStakeEventBlock = CONTRACT_FIRST_BLOCK;
+    let lastSavedUnstakeEventBlock = CONTRACT_FIRST_BLOCK;
+
+    if(SAVED_EVENTS[0].length > 0)
+        lastSavedStakeEventBlock = SAVED_EVENTS[0][0].block;
+    if (SAVED_EVENTS[1].length > 0)
+        lastSavedUnstakeEventBlock = SAVED_EVENTS[1][0].block;
+
     // Get updated stakes & unstakes from last saved block
-    const LAST_CHECKED_BLOCK = await _readSavedBlock();
     const NEW_EVENTS = await Promise.all([
-        _getEvents("Stake", LAST_CHECKED_BLOCK + 1, 'latest'), 
-        _getEvents("Unstake", LAST_CHECKED_BLOCK + 1, 'latest') 
+        _getEvents("Stake", lastSavedStakeEventBlock + 1, 'latest'), 
+        _getEvents("Unstake", lastSavedUnstakeEventBlock + 1, 'latest') 
     ])
 
     const ALL_STAKE_EVENTS = uniqueify([...SAVED_EVENTS[0], ...NEW_EVENTS[0]]);
     const ALL_UNSTAKE_EVENTS = uniqueify([...SAVED_EVENTS[1], ...NEW_EVENTS[1]]);
-    _saveRawDataToDB(ALL_STAKE_EVENTS, ALL_UNSTAKE_EVENTS);
+    
+    _saveEvents(STAKE_EVENTS_FILE, ALL_STAKE_EVENTS);
+    _saveEvents(UNSTAKE_EVENTS_FILE, ALL_UNSTAKE_EVENTS);
 
     // Return the results
     let results = _processEvents(ALL_STAKE_EVENTS, ALL_UNSTAKE_EVENTS);
-    results["block"] = LAST_CHECKED_BLOCK;
+    results["block"] = Math.max(lastSavedStakeEventBlock, lastSavedUnstakeEventBlock);
     results["timestamp"] = Date.now();
     return results;
 }
@@ -199,6 +195,5 @@ const getStakerEcoData = async () => {
 module.exports = {
     getStakingStats,
     getStakerEcoData,
-    getEcosystemLevels,
-    getLastCheckedBlock: _readSavedBlock
+    getEcosystemLevels
 }
