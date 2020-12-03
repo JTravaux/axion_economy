@@ -158,8 +158,8 @@ const getEcosystemLevels = async () => {
     return new Promise(async (resolve, reject) => {
         try {
             let unique_addresses = {}
-            const STAKE_EVENTS = await getAll(STAKE_EVENTS_COL);
-            const UNSTAKE_EVENTS = await getAll(UNSTAKE_EVENTS_COL);
+            const STAKE_EVENTS = await _readSavedEvents(STAKE_EVENTS_FILE);
+            const UNSTAKE_EVENTS = await _readSavedEvents(UNSTAKE_EVENTS_FILE);
             
             STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => { 
                 if (!unique_addresses[e.address])
@@ -177,8 +177,8 @@ const getStakerEcoData = async () => {
     return new Promise(async (resolve, reject) => {
         try {
             let unique_addresses = {}
-            const STAKE_EVENTS = await getAll(STAKE_EVENTS_COL);
-            const UNSTAKE_EVENTS = await getAll(UNSTAKE_EVENTS_COL);
+            const STAKE_EVENTS = await _readSavedEvents(STAKE_EVENTS_FILE);
+            const UNSTAKE_EVENTS = await _readSavedEvents(UNSTAKE_EVENTS_FILE);
 
             STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => {
                 if (!unique_addresses[e.address])
