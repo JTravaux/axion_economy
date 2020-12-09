@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { getLiquidEcoData } = require('./holders')
 const { Fetcher, ChainId, Route, WETH, Trade, TokenAmount, TradeType } = require('@uniswap/sdk');
 const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CONTRACTS, BLOXY_TOKEN_INFO_ENDPOINT, web3 } = require('../config');
 
@@ -111,10 +112,21 @@ const getVolume = () => {
     })
 }
 
+const getFixedLiquidAxn = () => {
+    return new Promise((resolve, reject) => {
+        getLiquidEcoData().then(data => {
+            const filteredData = [...data.filter(h => h.address_type === "Wallet" && h.address !== "0xe8b283b606a212d82036f74f88177375125440f6")]
+            const adjustedLiquidAXN = filteredData.reduce((acc, curr) => acc + curr.balance, 0);
+            resolve({ adjusted_liquid: adjustedLiquidAXN })
+        }).catch(err => reject(err))
+    })
+}
+
 module.exports = {
     getVolume,
     getMarketCap,
     getAxnPerEth,
     getUsdtPerAxn,
     getTotalSupply,
+    getFixedLiquidAxn,
 }

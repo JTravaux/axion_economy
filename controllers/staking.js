@@ -1,11 +1,8 @@
 const fs = require("fs");
-const { getAll, addMany, drop } = require('../controllers/db');
+const { CONTRACTS, ONE_TOKEN_18 , web3 } = require('../config');
 const { calculateEcosystemLevels, splitInteger, uniqueify } = require('../helpers');
-const { CONTRACTS, ONE_TOKEN_18 , web3} = require('../config');
 
 const CONTRACT_FIRST_BLOCK = 11236016;
-const STAKE_EVENTS_COL = "stake_events_raw";
-const UNSTAKE_EVENTS_COL = "unstake_events_raw";
 const STAKE_EVENTS_FILE = "stake_events_raw.txt";
 const UNSTAKE_EVENTS_FILE = "unstake_events_raw.txt";
 

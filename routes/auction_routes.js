@@ -3,6 +3,8 @@ const { getEstimatedTrees, getDailyAuctionAXN, getWeeklyAuctionAXN, getAuctions,
 const express = require('express');
 const auction_router = express.Router();
 
+const AUTO_UPDATING_MINUTES = 10;
+
 auction_router.get('/trees', async (req, res) => {
     try {
         const results = await getEstimatedTrees();
@@ -33,10 +35,22 @@ auction_router.get('/weekly', async (req, res) => {
     }
 })
 
+let auctionCache;
+let auctionUpdater;
 auction_router.get('/auctions', async (req, res) => {
     try {
-        const results = await getAuctions();
-        res.status(200).send(results)
+
+        if (!auctionUpdater) {
+            const result = await getAuctions();
+            auctionCache = result
+
+            auctionUpdater = setInterval(() => {
+                getTotalSupply().then(res => { auctionCache = res }).catch(() => clearInterval(auctionUpdater))
+            }, (1000 * 60) * AUTO_UPDATING_MINUTES)
+
+            res.status(200).send(result)
+        } else
+            res.status(200).send(auctionCache)
     } catch (err) {
         console.log(err);
         res.sendStatus(500);

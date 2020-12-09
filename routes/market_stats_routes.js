@@ -1,4 +1,4 @@
-const { getAxnPerEth, getUsdtPerAxn, getVolume, getMarketCap, getTotalSupply } = require('../controllers/market_data');
+const { getAxnPerEth, getUsdtPerAxn, getVolume, getMarketCap, getTotalSupply, getFixedLiquidAxn } = require('../controllers/market_data');
 
 const express = require('express');
 const holder_router = express.Router();
@@ -104,6 +104,28 @@ holder_router.get('/total-supply', async (req, res) => {
             res.status(200).send(result)
         } else
             res.status(200).send(supplyCache)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500);
+    }
+})
+
+
+let supplyFixCache;
+let supplyFixUpdater;
+holder_router.get('/fixed-supply', async (req, res) => {
+    try {
+        if (!supplyFixUpdater) {
+            const result = await getFixedLiquidAxn();
+            supplyFixCache = result
+
+            supplyFixUpdater = setInterval(() => {
+                getFixedLiquidAxn().then(res => { supplyFixCache = res }).catch(() => clearInterval(supplyFixUpdater))
+            }, AUTO_UPDATING_TIME)
+
+            res.status(200).send(result)
+        } else
+            res.status(200).send(supplyFixCache)
     } catch (err) {
         console.log(err)
         res.sendStatus(500);
