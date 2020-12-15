@@ -6,7 +6,7 @@ const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CON
 // METHODS
 let usdtPrice = null;
 let lastCircSupply = 0;
-let supplyAPI = 'etherscan' // or bloxy
+let supplyAPI = 'bloxy' // or bloxy
 
 const _getUpdateSupplyBloxy = () => {
     return new Promise(async (res, rej) => {
@@ -25,8 +25,8 @@ const _getUpdateSupplyBloxy = () => {
 }
 
 const _getUpdateSupplyEtherscan = () => {
-    return new Promise(async (res, rej) => {
-        CONTRACTS.token.methods.totalSupply().call().then(async (supply) => {
+    return new Promise((res, rej) => {
+        CONTRACTS.token.methods.totalSupply().call().then(supply => {
             const ADJUSTED_SUPPLY = web3.utils.toBN(supply).div(web3.utils.toBN(ONE_TOKEN_18)).toNumber();
             res(ADJUSTED_SUPPLY)
         }).catch(err => {
@@ -36,7 +36,6 @@ const _getUpdateSupplyEtherscan = () => {
         })
     })
 }
-
 
 const getAxnPerEth = () => {
     return new Promise(async (resolve, reject) => {

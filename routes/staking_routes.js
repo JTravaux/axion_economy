@@ -17,7 +17,7 @@ staking_router.get('/totals', async (req, res) => {
         }
         else res.status(200).send(totalsCache);
     } catch (err) {
-        console.log(err);
+        console.log("staking_routes error: ", err);
         res.status(500).send(totalsCache);
     }
 })
@@ -35,7 +35,7 @@ staking_router.get('/ecosystem', async (req, res) => {
         }
         else res.status(200).send(stakingEcoCache);
     } catch (err) {
-        console.log(err);
+        console.log("staking_routes error: ", err);
         res.status(500).send(stakingEcoCache);
     }
 })

@@ -38,7 +38,7 @@ const _cleanData = data => data.map(d => {
 const _getEvents = async (type, fromBlock, toBlock) => {
     return new Promise(resolve => {
         CONTRACTS.staking.getPastEvents(type, { fromBlock, toBlock }, async (error, events) => {
-            if (error) {
+            if (error && !error.message.includes("request rate limited")) {
                 const CURRENT_BLOCK = await web3.eth.getBlockNumber();
                 const BLOCKS_FROM_START = CURRENT_BLOCK - CONTRACT_FIRST_BLOCK;
                 const BLOCK_CHUNKS = splitInteger(BLOCKS_FROM_START, 10)
@@ -56,6 +56,9 @@ const _getEvents = async (type, fromBlock, toBlock) => {
 
                 const RESULTS = await Promise.all(promises)
                 resolve([].concat.apply([], RESULTS))
+            } else if (error && error.message.includes("request rate limited")) {
+                console.log("staking.js - ERROR - Rate Limited")
+                resolve([])
             }
             else {
                 const CLEANED_DATA = _cleanData(events);
@@ -69,6 +72,7 @@ const _processEvents = (stake_events, unstake_events) => {
     let uniqueAddresses = [];
     let total_axn_staked = 0;
     let total_stake_length = 0;
+    let total_active_shares = 0;
     let total_active_stakes_5555 = 0
     let total_axn_staked_5555 = 0;
     let total_active_stakes = (stake_events.length - unstake_events.length);
@@ -78,15 +82,20 @@ const _processEvents = (stake_events, unstake_events) => {
             return;
 
         const amount = ev.amount / ONE_TOKEN_18; // TODO: do properly
+        const shares = ev.shares / ONE_TOKEN_18; // TODO: do properly
         const length = Math.floor((ev.end - ev.start) / 86400);
 
         total_axn_staked += amount;
         total_stake_length += length;
+        total_active_shares += shares;
 
         if (amount >= 2500000 && length === 5555) {
             total_active_stakes_5555++;
             total_axn_staked_5555 += amount
         }
+
+        if(ev.shares === 0)
+            console.log("0 SHARES", ev)
 
         if (length > 5555)
             console.error("ABOVE 5555 DAYS", ev)
@@ -97,6 +106,7 @@ const _processEvents = (stake_events, unstake_events) => {
 
     return {
         total_axn_staked,
+        total_active_shares,
         total_active_stakes,
         total_axn_staked_5555,
         total_active_stakes_5555,
