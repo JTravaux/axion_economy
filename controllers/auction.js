@@ -72,16 +72,7 @@ const getWeeklyAuctionAXN = () => {
         const result = await fetch(BLOXY_GET_WEEKLY_AUCTION_BALANCE);
         const resultJSON = await result.json();
         const AXN_BALANCE = resultJSON[0].balance;
-        resolve(AXN_BALANCE)
-    })
-}
-
-const getDailyAuctionAXN = () => {
-    return new Promise(async (resolve, reject) => {
-        const result = await fetch(BLOXY_GET_DAILY_AUCTION_BALANCE);
-        const resultJSON = await result.json();
-        const AXN_BAL = resultJSON.find(r => r.symbol === "AXN").balance;
-        resolve(AXN_BAL)
+        resolve({axn: AXN_BALANCE})
     })
 }
 
@@ -91,7 +82,7 @@ const getAuctions = () => {
             let promises = [];
             for(let i = 0; i <= id; ++i)
                 promises.push(CONTRACTS.auction.methods.reservesOf(i+1).call())
-            
+
             const auctions = await Promise.all(promises)
             resolve(auctions.map((a, i) => { 
                 return { 
@@ -103,6 +94,25 @@ const getAuctions = () => {
                     end: moment.unix(1605337416).add(i+1, 'days').format("X")
                 }
             }))
+        }).catch(err => reject(err))
+    })
+}
+
+const getCurrentAuctionReserves = () => {
+    return new Promise((resolve, reject) => {
+        CONTRACTS.auction.methods.calculateStepsFromStart().call().then(id => {
+            CONTRACTS.auction.methods.reservesOf(id).call().then(reserves => {
+                const nextWeeklyAuctionId = 7 * Math.ceil(id / 7);
+
+                CONTRACTS.auction.methods.reservesOf(nextWeeklyAuctionId).call().then(nextWeekly => {
+                    resolve({
+                        timestamp: Date.now(),
+                        axn: (Number(reserves.token) / ONE_TOKEN_18).toFixed(2),
+                        eth: (Number(reserves.eth) / ONE_TOKEN_18).toFixed(2),
+                        next_weekly: (Number(nextWeekly.token) / ONE_TOKEN_18).toFixed(2),
+                    })
+                }).catch(err => reject(err))
+            }).catch(err => reject(err))
         }).catch(err => reject(err))
     })
 }
@@ -128,7 +138,7 @@ const getCurrentAuctionEnd = () => {
 module.exports = {
     getAuctions,
     getEstimatedTrees,
-    getDailyAuctionAXN,
     getWeeklyAuctionAXN,
     getCurrentAuctionEnd,
+    getCurrentAuctionReserves,
 }
