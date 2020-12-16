@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.047959a9.chunk.css",
-    "main.js": "/static/js/main.d31191ae.chunk.js",
-    "main.js.map": "/static/js/main.d31191ae.chunk.js.map",
+    "main.css": "/static/css/main.986c6d8f.chunk.css",
+    "main.js": "/static/js/main.b1cfacea.chunk.js",
+    "main.js.map": "/static/js/main.b1cfacea.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.f005ac7b.js",
     "runtime-main.js.map": "/static/js/runtime-main.f005ac7b.js.map",
-    "static/js/2.88c2d20a.chunk.js": "/static/js/2.88c2d20a.chunk.js",
-    "static/js/2.88c2d20a.chunk.js.map": "/static/js/2.88c2d20a.chunk.js.map",
+    "static/js/2.0d87b692.chunk.js": "/static/js/2.0d87b692.chunk.js",
+    "static/js/2.0d87b692.chunk.js.map": "/static/js/2.0d87b692.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/main.047959a9.chunk.css.map": "/static/css/main.047959a9.chunk.css.map",
-    "static/js/2.88c2d20a.chunk.js.LICENSE.txt": "/static/js/2.88c2d20a.chunk.js.LICENSE.txt",
+    "static/css/main.986c6d8f.chunk.css.map": "/static/css/main.986c6d8f.chunk.css.map",
+    "static/js/2.0d87b692.chunk.js.LICENSE.txt": "/static/js/2.0d87b692.chunk.js.LICENSE.txt",
     "static/media/card_bg.3a3b4dd1.jpg": "/static/media/card_bg.3a3b4dd1.jpg",
     "static/media/eden-logo.89258517.png": "/static/media/eden-logo.89258517.png",
     "static/media/eden.27b887d7.jpg": "/static/media/eden.27b887d7.jpg",
@@ -19,8 +19,8 @@
   },
   "entrypoints": [
     "static/js/runtime-main.f005ac7b.js",
-    "static/js/2.88c2d20a.chunk.js",
-    "static/css/main.047959a9.chunk.css",
-    "static/js/main.d31191ae.chunk.js"
+    "static/js/2.0d87b692.chunk.js",
+    "static/css/main.986c6d8f.chunk.css",
+    "static/js/main.b1cfacea.chunk.js"
   ]
 }
