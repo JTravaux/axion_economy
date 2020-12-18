@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const calculateEcosystemLevels = data => {
     let unique_addresses = [];
     const results = {
@@ -102,8 +104,31 @@ const splitInteger = (number, parts) => {
 
 const uniqueify = a => [...new Set(a.map(o => JSON.stringify(o)))].map(s => JSON.parse(s))
 
+const saveToFile = (fileName, data) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(fileName, JSON.stringify(data), (err) => {
+            if (err) 
+                reject(err);
+            else resolve();
+        });
+    })
+}
+
+const readFile = fileName => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(fileName, "utf-8", (err, data) => {
+            if (err) 
+                return reject(err)
+            else 
+                return resolve(JSON.parse(data))
+        });
+    })
+}
+
 module.exports = {
+    readFile,
     uniqueify,
+    saveToFile,
     splitInteger,
     calculateEcosystemLevels,
 }
