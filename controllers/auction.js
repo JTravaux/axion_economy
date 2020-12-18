@@ -103,8 +103,8 @@ const getAuctions = () => {
                 }
             })
 
-            AUCTIONS[CURRENT_AUCTION_ID] = NEW_AUCTIONS_FORMATTED[0];
-            AUCTIONS[TOMORROW_AUCTION_ID] = NEW_AUCTIONS_FORMATTED[1];
+            AUCTIONS[AUCTIONS.length - 2] = NEW_AUCTIONS_FORMATTED[0];
+            AUCTIONS[TAUCTIONS.length - 1] = NEW_AUCTIONS_FORMATTED[1];
 
             saveToFile(AUCTION_HISTORY_FILE, AUCTIONS)
             resolve(AUCTIONS)
