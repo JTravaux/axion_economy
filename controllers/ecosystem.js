@@ -1,13 +1,13 @@
 const { ONE_TOKEN_18 } = require('../config.js');
 const { getLiquidEcoData } = require('./holders');
-const { getStakerEcoData } = require('./staking');
+const { getActiveStakesByAddress } = require('./staking');
 const { calculateEcosystemLevels } = require('../helpers');
 
 const calculateEcosystem = () => {
     return new Promise(async (resolve, reject) => {
         try {
             const LIQUID_DATA = await getLiquidEcoData();
-            const STAKER_DATA = await getStakerEcoData();
+            const STAKER_DATA = await getActiveStakesByAddress();
 
             let liquid = []
             let staked = []

@@ -3,7 +3,7 @@ const { getEstimatedTrees, getCurrentAuctionReserves, getAuctions, getCurrentAuc
 const express = require('express');
 const auction_router = express.Router();
 
-const AUTO_UPDATING_MINUTES = 1;
+const AUTO_UPDATING_MINUTES = 5;
 
 auction_router.get('/trees', async (req, res) => {
     try {

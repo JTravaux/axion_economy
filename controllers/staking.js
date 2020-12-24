@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { CONTRACTS, ONE_TOKEN_18 , web3 } = require('../config');
-const { calculateEcosystemLevels, splitInteger, uniqueify } = require('../helpers');
+const { calculateEcosystemLevels, splitInteger, uniqueify, readFile } = require('../helpers');
 
 const CONTRACT_FIRST_BLOCK = 11236016;
 const STAKE_EVENTS_FILE = "stake_events_raw.txt";
@@ -11,15 +11,6 @@ const _saveEvents = (path, events) => {
     fs.writeFile(path, JSON.stringify(SORTED_EVENTS), (err) => {
         if (err) console.log(err);
     });
-}
-
-const _readSavedEvents = path => {
-    return new Promise(resolve => {
-        fs.readFile(path, "utf-8", (err, data) => {
-            if (err) return resolve([])
-            else return resolve(JSON.parse(data))
-        });
-    })
 }
 
 const _cleanData = data => data.map(d => {
@@ -97,9 +88,6 @@ const _processEvents = (stake_events, unstake_events) => {
         if(ev.shares === 0)
             console.log("0 SHARES", ev)
 
-        if (length > 5555)
-            console.error("ABOVE 5555 DAYS", ev)
-
         if(!uniqueAddresses.includes(ev.address))
             uniqueAddresses.push(ev.address)
     })
@@ -121,8 +109,8 @@ const _calculateStakingStats = async () => {
 
     // Get saved stakes & unstakes from file
     const SAVED_EVENTS = await Promise.all([ 
-        _readSavedEvents(STAKE_EVENTS_FILE), 
-        _readSavedEvents(UNSTAKE_EVENTS_FILE) 
+        readFile(STAKE_EVENTS_FILE), 
+        readFile(UNSTAKE_EVENTS_FILE) 
     ])
 
     let lastSavedStakeEventBlock = CONTRACT_FIRST_BLOCK;
@@ -165,8 +153,8 @@ const getEcosystemLevels = async () => {
     return new Promise(async (resolve, reject) => {
         try {
             let unique_addresses = {}
-            const STAKE_EVENTS = await _readSavedEvents(STAKE_EVENTS_FILE);
-            const UNSTAKE_EVENTS = await _readSavedEvents(UNSTAKE_EVENTS_FILE);
+            const STAKE_EVENTS = await readFile(STAKE_EVENTS_FILE);
+            const UNSTAKE_EVENTS = await readFile(UNSTAKE_EVENTS_FILE);
             
             STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => { 
                 if (!unique_addresses[e.address])
@@ -180,12 +168,12 @@ const getEcosystemLevels = async () => {
     })
 }
 
-const getStakerEcoData = async () => {
+const getActiveStakesByAddress = async () => {
     return new Promise(async (resolve, reject) => {
         try {
             let unique_addresses = {}
-            const STAKE_EVENTS = await _readSavedEvents(STAKE_EVENTS_FILE);
-            const UNSTAKE_EVENTS = await _readSavedEvents(UNSTAKE_EVENTS_FILE);
+            const STAKE_EVENTS = await readFile(STAKE_EVENTS_FILE);
+            const UNSTAKE_EVENTS = await readFile(UNSTAKE_EVENTS_FILE);
 
             STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => {
                 if (!unique_addresses[e.address])
@@ -199,8 +187,50 @@ const getStakerEcoData = async () => {
     })
 }
 
+const getCompletedStakesByAddress = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let unique_addresses = {}
+            const UNSTAKE_EVENTS = await readFile(UNSTAKE_EVENTS_FILE);
+
+            UNSTAKE_EVENTS.forEach(e => {
+                if (!unique_addresses[e.address])
+                    unique_addresses[e.address] = [e]
+                else
+                    unique_addresses[e.address].push(e)
+            })
+
+            resolve(unique_addresses);
+        } catch (err) { reject(err) }
+    })
+}
+
+
+const getStakeUnstakeEvents = async (num) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const STAKE_EVENTS = await readFile(STAKE_EVENTS_FILE);
+            const STAKE_EVENTS_ADJUSTED = STAKE_EVENTS.map(s => {
+                s.type = "Stake";
+                return s;
+            })
+
+            const UNSTAKE_EVENTS = await readFile(UNSTAKE_EVENTS_FILE);
+            const UNSTAKE_EVENTS_ADJUSTED = UNSTAKE_EVENTS.map(s => {
+                s.type = "Unstake";
+                return s;
+            })
+
+            const EVENTS = [...STAKE_EVENTS_ADJUSTED, ...UNSTAKE_EVENTS_ADJUSTED].sort((a, b) => b.block - a.block)
+            resolve(EVENTS.slice(0, num))
+        } catch (err) { reject(err) }
+    })
+}
+
 module.exports = {
     getStakingStats,
-    getStakerEcoData,
-    getEcosystemLevels
+    getEcosystemLevels,
+    getCompletedStakesByAddress,
+    getStakeUnstakeEvents,
+    getActiveStakesByAddress,
 }
