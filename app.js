@@ -8,7 +8,7 @@ const staking_routes = require('./routes/staking_routes');
 const freeclaim_routes = require('./routes/freeclaim_routes');
 const market_stats_routes = require('./routes/market_stats_routes');
 
-const app = express();
+const app = express(); 
 const PORT = process.env.PORT || 8080;
 
 // app.use(cors());
