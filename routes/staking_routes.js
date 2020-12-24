@@ -69,7 +69,12 @@ staking_router.get('/stakes/active/:addr', async (req, res) => {
 
     try {
         const STAKED_ADDRESSES = await getActiveStakesByAddress();
-        res.status(200).send(STAKED_ADDRESSES[REQ_ADDR] ?? [])
+
+        let result = [];
+        if (STAKED_ADDRESSES[REQ_ADDR])
+            result = STAKED_ADDRESSES[REQ_ADDR];
+
+        res.status(200).send(result)
     } catch (err) {
         console.log("staking_routes error: ", err);
         res.status(500).send({ message: "There was an error reading active stakes for " + req.params.addr });
@@ -81,7 +86,12 @@ staking_router.get('/stakes/complete/:addr', async (req, res) => {
 
     try {
         const COMPLETED_STAKES = await getCompletedStakesByAddress();
-        res.status(200).send(COMPLETED_STAKES[REQ_ADDR] ?? [])
+
+        let result = [];
+        if (COMPLETED_STAKES[REQ_ADDR])
+            result = COMPLETED_STAKES[REQ_ADDR];
+
+        res.status(200).send(result)
     } catch (err) {
         console.log("staking_routes error: ", err);
         res.status(500).send({ message: "There was an error reading completed stakes for " + req.params.addr });
