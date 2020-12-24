@@ -6,7 +6,7 @@ const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CON
 // METHODS
 let usdtPrice = null;
 let lastCircSupply = 0;
-let supplyAPI = 'bloxy' // or bloxy
+let supplyAPI = 'etherscan' // or bloxy
 
 const _getUpdateSupplyBloxy = () => {
     return new Promise(async (res, rej) => {
