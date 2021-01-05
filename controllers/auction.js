@@ -28,7 +28,7 @@ const _startBalanceAutoUpdater = () => {
         try {
             const RES = await fetch(BLOXY_GET_ETH_BALANCE);
             const RES_JSON = await RES.json()
-            lastEthBalance = RES_JSON[0].received_amount;
+            lastEthBalance = RES_JSON[0].received_amount += JACK_ADDRESS_OLD_AMOUNT;
         } catch (err) {
             clearInterval(ethBalanceUpdater);
             ethBalanceUpdater = null;
@@ -50,12 +50,9 @@ const getEstimatedTrees = () => {
             if (!ethBalanceUpdater) {
                 const RES = await fetch(BLOXY_GET_ETH_BALANCE);
                 const RES_JSON = await RES.json()
-                lastEthBalance = RES_JSON[0].received_amount;
+                lastEthBalance = RES_JSON[0].received_amount += JACK_ADDRESS_OLD_AMOUNT;
                 _startBalanceAutoUpdater();
             }
-
-            // Add in ETH from old address
-            lastEthBalance += JACK_ADDRESS_OLD_AMOUNT;
 
             // Calculate Trees
             const FIVE_PERCENT_ETH = lastEthBalance * 0.05;
