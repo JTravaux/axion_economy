@@ -2,7 +2,7 @@ const moment = require('moment');
 const fetch = require('node-fetch');
 const { saveToFile, readFile, uniqueify } = require('../helpers');
 const { Fetcher, Route, WETH} = require('@uniswap/sdk');
-const { USDT, BLOXY_GET_ETH_BALANCE, BLOXY_GET_WEEKLY_AUCTION_BALANCE, PROVIDER, CONTRACTS, ONE_TOKEN_18 } = require('../config');
+const { USDT, BLOXY_GET_ETH_BALANCE, BLOXY_GET_WEEKLY_AUCTION_BALANCE, PROVIDER, CONTRACTS, ONE_TOKEN_18, JACK_ADDRESS_OLD_AMOUNT } = require('../config');
 
 let lastEthPrice = 0;
 let lastEthBalance = 0;
@@ -53,6 +53,9 @@ const getEstimatedTrees = () => {
                 lastEthBalance = RES_JSON[0].received_amount;
                 _startBalanceAutoUpdater();
             }
+
+            // Add in ETH from old address
+            lastEthBalance += JACK_ADDRESS_OLD_AMOUNT;
 
             // Calculate Trees
             const FIVE_PERCENT_ETH = lastEthBalance * 0.05;
