@@ -1,6 +1,8 @@
 const express = require('express');
 const staking_router = express.Router();
 const { readFile } = require('../helpers')
+const { addOne } = require('../controllers/db.js');
+
 const { getStakingStats, getEcosystemLevels, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents } = require('../controllers/staking');
 
 let totalsCache;
@@ -10,10 +12,20 @@ let updateMinutes = 5;
 staking_router.get('/totals', async (req, res) => {
     try {
         if (!totalsUpdater){
+
+            // Get and save results
             totalsCache = await getStakingStats();
+            addOne("staking_stats", totalsCache);
+
+            // Refresh stats
             totalsUpdater = setInterval(async () => {
                 totalsCache = await getStakingStats();
-            }, (1000 * 60) * updateMinutes)
+            }, (1000 * 60) * updateMinutes);
+
+            // Update DB every 30 mins
+            setInterval(() => { addOne("staking_stats", totalsCache) }, (1000 * 60) * 30);
+
+            // Return result
             res.status(200).send(totalsCache)
         }
         else res.status(200).send(totalsCache);
