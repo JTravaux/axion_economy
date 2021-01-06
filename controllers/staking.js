@@ -227,7 +227,10 @@ const getStakeUnstakeEvents = async (num) => {
     })
 }
 
+const getTotalShares = () => CONTRACTS.staking.methods.sharesTotalSupply().call();
+
 module.exports = {
+    getTotalShares,
     getStakingStats,
     getEcosystemLevels,
     getCompletedStakesByAddress,

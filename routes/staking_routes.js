@@ -3,7 +3,8 @@ const staking_router = express.Router();
 const { readFile } = require('../helpers')
 const { addOne } = require('../controllers/db.js');
 
-const { getStakingStats, getEcosystemLevels, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents } = require('../controllers/staking');
+const { getStakingStats, getEcosystemLevels, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents, getTotalShares } = require('../controllers/staking');
+const { ONE_TOKEN_18 } = require('../config');
 
 let totalsCache;
 let totalsUpdater;
@@ -76,6 +77,8 @@ staking_router.get('/all-unstake-events', async (req, res) => {
     }
 })
 
+let totalSharesCache;
+let totalSharesUpdater;
 staking_router.get('/stakes/active/:addr', async (req, res) => {
     const REQ_ADDR = req.params.addr
 
@@ -86,7 +89,29 @@ staking_router.get('/stakes/active/:addr', async (req, res) => {
         if (STAKED_ADDRESSES[REQ_ADDR])
             result = STAKED_ADDRESSES[REQ_ADDR];
 
-        res.status(200).send(result)
+        if (!totalSharesUpdater) {
+            totalSharesUpdater = setInterval(async () => {
+                totalSharesCache = await getTotalShares();
+            }, (1000 * 60) * updateMinutes)
+        }
+
+        let totalShares = totalSharesCache;
+        if (!totalShares)
+            totalShares = await getTotalShares()
+
+        const TOTAL_AXN_STAKED = result.reduce((a, b) => a + (b.amount / ONE_TOKEN_18), 0);
+        const TOTAL_SHARES_STAKES = result.reduce((a, b) => a + (b.shares / ONE_TOKEN_18), 0);
+
+        let totals = {
+            total_axn: TOTAL_AXN_STAKED,
+            total_shares: TOTAL_SHARES_STAKES,
+            global_shares: totalShares / ONE_TOKEN_18
+        }
+
+        res.status(200).send({
+            stakes: result,
+            totals
+        })
     } catch (err) {
         console.log("staking_routes error: ", err);
         res.status(500).send({ message: "There was an error reading active stakes for " + req.params.addr });
