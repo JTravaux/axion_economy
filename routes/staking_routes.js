@@ -95,9 +95,8 @@ staking_router.get('/stakes/active/:addr', async (req, res) => {
             }, (1000 * 60) * updateMinutes)
         }
 
-        let totalShares = totalSharesCache;
-        if (!totalShares)
-            totalShares = await getTotalShares()
+        if (!totalSharesCache) 
+            totalSharesCache = await getTotalShares()     
 
         const TOTAL_AXN_STAKED = result.reduce((a, b) => a + (b.amount / ONE_TOKEN_18), 0);
         const TOTAL_SHARES_STAKES = result.reduce((a, b) => a + (b.shares / ONE_TOKEN_18), 0);
@@ -105,7 +104,7 @@ staking_router.get('/stakes/active/:addr', async (req, res) => {
         let totals = {
             total_axn: TOTAL_AXN_STAKED,
             total_shares: TOTAL_SHARES_STAKES,
-            global_shares: totalShares / ONE_TOKEN_18
+            global_shares: totalSharesCache / ONE_TOKEN_18
         }
 
         res.status(200).send({
