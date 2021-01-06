@@ -5,7 +5,6 @@ const { ONE_TOKEN_18, PROVIDER, AXION, USDT, COINGECKO_VOLUME_INFO_ENDPOINT, CON
 
 // METHODS
 let usdtPrice = null;
-let lastCircSupply = 0;
 let supplyAPI = 'bloxy' // or bloxy
 
 const _getUpdateSupplyBloxy = () => {
@@ -13,12 +12,10 @@ const _getUpdateSupplyBloxy = () => {
         try {
             const RES = await fetch(BLOXY_TOKEN_INFO_ENDPOINT);
             const RES_JSON = await RES.json();
-            lastCircSupply = RES_JSON[0].circulating_supply
-
             res(RES_JSON[0].circulating_supply)
         } catch (err) { 
             supplyAPI = "etherscan"
-            setTimeout(() => { supplyAPI = "bloxy" }, 1000 * (60 * 30))
+            setTimeout(() => { supplyAPI = "bloxy" }, 1000 * (60 * 5))
             rej(err) 
         }
     })
@@ -87,8 +84,8 @@ const getMarketCap = async () => {
     })
 }
 
-const supplyMethod = supplyAPI === 'etherscan' ? _getUpdateSupplyEtherscan : _getUpdateSupplyBloxy;
 const getTotalSupply = async () => {
+    const supplyMethod = supplyAPI === 'etherscan' ? _getUpdateSupplyEtherscan : _getUpdateSupplyBloxy;
     return new Promise(async (resolve, reject) => {
         try {
             const supply = await supplyMethod();
