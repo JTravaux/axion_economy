@@ -149,25 +149,6 @@ const getStakingStats = async () => {
     })
 }
 
-const getEcosystemLevels = async () => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let unique_addresses = {}
-            const STAKE_EVENTS = await readFile(STAKE_EVENTS_FILE);
-            const UNSTAKE_EVENTS = await readFile(UNSTAKE_EVENTS_FILE);
-            
-            STAKE_EVENTS.filter(s => !UNSTAKE_EVENTS.find(u => u.stakeNum === s.stakeNum)).forEach(e => { 
-                if (!unique_addresses[e.address])
-                    unique_addresses[e.address] = [e]
-                else
-                    unique_addresses[e.address].push(e)
-            })
-
-            resolve(calculateEcosystemLevels(unique_addresses));
-        } catch (err) { reject(err) }
-    })
-}
-
 const getActiveStakesByAddress = async () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -232,7 +213,6 @@ const getTotalShares = () => CONTRACTS.staking.methods.sharesTotalSupply().call(
 module.exports = {
     getTotalShares,
     getStakingStats,
-    getEcosystemLevels,
     getCompletedStakesByAddress,
     getStakeUnstakeEvents,
     getActiveStakesByAddress,

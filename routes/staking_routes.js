@@ -3,25 +3,25 @@ const staking_router = express.Router();
 const { readFile } = require('../helpers')
 const { addOne } = require('../controllers/db.js');
 
-const { getStakingStats, getEcosystemLevels, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents, getTotalShares } = require('../controllers/staking');
+const { getStakingStats, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents, getTotalShares } = require('../controllers/staking');
 const { ONE_TOKEN_18 } = require('../config');
 
 let totalsCache;
-let totalsUpdater;
 let updateMinutes = 5;
+const UPDATE_MS = (1000 * 60) * updateMinutes;
 
 staking_router.get('/totals', async (req, res) => {
     try {
-        if (!totalsUpdater){
+        if (!totalsCache){
 
             // Get and save results
             totalsCache = await getStakingStats();
             addOne("staking_stats", totalsCache);
 
             // Refresh stats
-            totalsUpdater = setInterval(async () => {
+            setInterval(async () => {
                 totalsCache = await getStakingStats();
-            }, (1000 * 60) * updateMinutes);
+            }, UPDATE_MS);
 
             // Update DB every 30 mins
             setInterval(() => { addOne("staking_stats", totalsCache) }, (1000 * 60) * 30);
@@ -36,23 +36,6 @@ staking_router.get('/totals', async (req, res) => {
     }
 })
 
-let stakingEcoCache;
-let stakingEcoUpdater;
-staking_router.get('/ecosystem', async (req, res) => {
-    try {
-        if (!stakingEcoUpdater) {
-            stakingEcoCache = await getEcosystemLevels();
-            stakingEcoUpdater = setInterval(async () => {
-                stakingEcoCache = await getEcosystemLevels();
-            }, (1025 * 60) * updateMinutes)
-            res.status(200).send(stakingEcoCache)
-        }
-        else res.status(200).send(stakingEcoCache);
-    } catch (err) {
-        console.log("staking_routes error: ", err);
-        res.status(500).send(stakingEcoCache);
-    }
-})
 
 const STAKE_EVENTS_FILE = "stake_events_raw.txt";
 const UNSTAKE_EVENTS_FILE = "unstake_events_raw.txt";
@@ -77,26 +60,29 @@ staking_router.get('/all-unstake-events', async (req, res) => {
     }
 })
 
+let stakesByAddressCache;
 let totalSharesCache;
-let totalSharesUpdater;
 staking_router.get('/stakes/active/:addr', async (req, res) => {
     const REQ_ADDR = req.params.addr
-
+    
     try {
-        const STAKED_ADDRESSES = await getActiveStakesByAddress();
-
-        let result = [];
-        if (STAKED_ADDRESSES[REQ_ADDR])
-            result = STAKED_ADDRESSES[REQ_ADDR];
-
-        if (!totalSharesUpdater) {
-            totalSharesUpdater = setInterval(async () => {
-                totalSharesCache = await getTotalShares();
-            }, (1000 * 60) * updateMinutes)
+        if (!stakesByAddressCache) {
+            stakesByAddressCache = await getActiveStakesByAddress();
+            setInterval(async () => {
+                stakesByAddressCache = await getActiveStakesByAddress();
+            }, UPDATE_MS)
         }
 
-        if (!totalSharesCache) 
-            totalSharesCache = await getTotalShares()     
+        let result = [];
+        if (stakesByAddressCache[REQ_ADDR])
+            result = stakesByAddressCache[REQ_ADDR];
+
+        if (!totalSharesCache) {
+            totalSharesCache = await getTotalShares();
+            setInterval(async () => {
+                totalSharesCache = await getTotalShares();
+            }, UPDATE_MS)
+        }
 
         const TOTAL_AXN_STAKED = result.reduce((a, b) => a + (b.amount / ONE_TOKEN_18), 0);
         const TOTAL_SHARES_STAKES = result.reduce((a, b) => a + (b.shares / ONE_TOKEN_18), 0);
@@ -117,15 +103,21 @@ staking_router.get('/stakes/active/:addr', async (req, res) => {
     }
 })
 
+let completedStakesByAddressCache;
 staking_router.get('/stakes/complete/:addr', async (req, res) => {
     const REQ_ADDR = req.params.addr
 
     try {
-        const COMPLETED_STAKES = await getCompletedStakesByAddress();
+        if (!completedStakesByAddressCache) {
+            completedStakesByAddressCache = await getCompletedStakesByAddress();
+            setInterval(async () => {
+                completedStakesByAddressCache = await getCompletedStakesByAddress();
+            }, UPDATE_MS)
+        }
 
         let result = [];
-        if (COMPLETED_STAKES[REQ_ADDR])
-            result = COMPLETED_STAKES[REQ_ADDR];
+        if (completedStakesByAddressCache[REQ_ADDR])
+            result = completedStakesByAddressCache[REQ_ADDR];
 
         res.status(200).send(result)
     } catch (err) {
