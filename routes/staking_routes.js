@@ -3,7 +3,7 @@ const staking_router = express.Router();
 const { readFile } = require('../helpers')
 const { addOne } = require('../controllers/db.js');
 
-const { getStakingStats, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents, getTotalShares } = require('../controllers/staking');
+const { getStakingStats, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents, getTotalShares, _getEvents, _getEventsV1 } = require('../controllers/staking');
 const { ONE_TOKEN_18 } = require('../config');
 
 let totalsCache;
@@ -139,4 +139,34 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
         res.status(500).send({ message: "There was an error reading latest events" });
     }
 })
+
+
+// staking_router.get('/fetch-all-events/:type', async (req, res) => {
+//     const results = await _getEvents(req.params.type, 11472614, 'latest')
+//     console.log(results.length)
+//     res.status(200).send(results.sort((a, b) => b.stakeNum - a.stakeNum))
+// })
+
+// staking_router.get('/fetch-all-events/v1/:type', async (req, res) => {
+//     const results = await _getEventsV1(req.params.type, 11248075, 'latest')
+//     console.log(results.length)
+//     res.status(200).send(results.sort((a, b) => b.stakeNum - a.stakeNum))
+// })
+
+// staking_router.get('/fetch-events/all/stake', async (req, res) => {
+//     const results = await _getEventsV1("Stake", 11248075, 'latest')
+//     const results2 = await _getEvents("Stake", 11472614, 'latest')
+
+//     console.log(results.concat(results2).length)
+//     res.status(200).send(results.concat(results2).sort((a, b) => b.stakeNum - a.stakeNum))
+// })
+
+// staking_router.get('/fetch-events/all/unstake', async (req, res) => {
+//     const results = await _getEventsV1("Unstake", 11248075, 'latest')
+//     const results2 = await _getEvents("Unstake", 11472614, 'latest')
+
+//     console.log(results.concat(results2).length)
+//     res.status(200).send(results.concat(results2).sort((a, b) => b.stakeNum - a.stakeNum))
+// })
+
 module.exports = staking_router;

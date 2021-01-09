@@ -7,10 +7,12 @@ const BPD_ABI = require('./ABIs/bpd.json');
 const STAKING_ABI = require('./ABIs/staking.json');
 const AUCTION_ABI = require('./ABIs/auction.json');
 const FREECLAIM_ABI = require('./ABIs/foreign_swap.json');
+const STAKING_V1_ABI = require('./ABIs/v1/staking.json');
 
 const AXION_CONTRACT = "0x71F85B2E46976bD21302B64329868fd15eb0D127"; 
 const BPD_CONTRACT = "0xCF39754913b41946379c130B203Bf8406460D020"; 
 const STAKING_CONTRACT = "0x1920d646574E097c2c487F69F40814F95d45bf8C"; 
+const STAKING_V1 = "0xCfD53Eff4871B93eD7405F3f428C25F3bf60bbEa";
 const AUCTION_CONTRACT = "0xCc9bEC9EE79259C7757a24C288fB5CEAbC9ca40B" 
 const FREECLAIM_CONTRACT = "0x12E54c7408Ac4d8885070ED7B379fe615E71C2d1";
 const USDT_CONTRACT = "0xdac17f958d2ee523a2206206994597c13d831ec7";
@@ -41,6 +43,7 @@ const CONTRACTS = {
     token: new web3.eth.Contract(TOKEN_ABI, AXION_CONTRACT),
     bpd: new web3.eth.Contract(BPD_ABI, BPD_CONTRACT),
     staking: new web3.eth.Contract(STAKING_ABI, STAKING_CONTRACT),
+    staking_v1: new web3.eth.Contract(STAKING_V1_ABI, STAKING_V1),
     auction: new web3.eth.Contract(AUCTION_ABI, AUCTION_CONTRACT),
     freeclaim: new web3.eth.Contract(FREECLAIM_ABI, FREECLAIM_CONTRACT),
 }
