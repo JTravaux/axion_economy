@@ -154,19 +154,46 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
 // })
 
 // staking_router.get('/fetch-events/all/stake', async (req, res) => {
-//     const results = await _getEventsV1("Stake", 11248075, 'latest')
-//     const results2 = await _getEvents("Stake", 11472614, 'latest')
+//     const results = await _getEventsV1("Stake", 11248075, 11472614)
+//     const results2 = await _getEvents("Stake", 11472615, 'latest')
 
-//     console.log(results.concat(results2).length)
-//     res.status(200).send(results.concat(results2).sort((a, b) => b.stakeNum - a.stakeNum))
+//     const arr = {};
+//     const RES = results.concat(results2)
+
+//     // res.status(200).send(results.sort((a, b) => b.stakeNum - a.stakeNum))
+
+//     // RES.forEach(i => {
+//     //     const ADDR = i.address;
+//     //     const NUM = Number(i.stakeNum)
+//     //     if (!arr[ADDR])
+//     //         arr[ADDR] = [NUM]
+//     //     else {
+//     //         if (!arr[ADDR].includes(NUM))
+//     //             arr[ADDR].push(NUM)
+//     //     }
+           
+//     // })
+
+//     res.status(200).send(RES.sort((a, b) => b.block - a.block))
 // })
 
 // staking_router.get('/fetch-events/all/unstake', async (req, res) => {
-//     const results = await _getEventsV1("Unstake", 11248075, 'latest')
-//     const results2 = await _getEvents("Unstake", 11472614, 'latest')
+//     const results = await _getEventsV1("Unstake", 11248075, 11472614)
+//     const results2 = await _getEvents("Unstake", 11472615, 'latest')
+
+//     const arr = {};
+//     const RES = results.concat(results2)
 
 //     console.log(results.concat(results2).length)
-//     res.status(200).send(results.concat(results2).sort((a, b) => b.stakeNum - a.stakeNum))
+//     res.status(200).send(RES.sort((a, b) => b.block - a.block))
+
+//     // res.status(200).send(results.concat(results2).forEach(i => {
+//     //     const ADDR = i.address;
+//     //     if (!arr[ADDR])
+//     //         arr[ADDR] = [i.stakeNum]
+//     //     else
+//     //         arr[ADDR].push(i.stakeNum)
+//     // }))
 // })
 
 module.exports = staking_router;

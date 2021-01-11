@@ -22,7 +22,8 @@ const _cleanData = data => data.map(d => {
         start: d.returnValues.start,
         end: d.returnValues.end,
         shares: d.returnValues.shares,
-        block: d.blockNumber
+        block: d.blockNumber,
+        txID: d.transactionHash
     }
 })
 
