@@ -155,12 +155,13 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
 
 // staking_router.get('/fetch-events/all/stake', async (req, res) => {
 //     const results = await _getEventsV1("Stake", 11248075, 11472614)
-//     const results2 = await _getEvents("Stake", 11472615, 'latest')
+//     const results2 = await _getEvents("Stake", 11472615, 11633815)
 
 //     const arr = {};
 //     const RES = results.concat(results2)
 
-//     // res.status(200).send(results.sort((a, b) => b.stakeNum - a.stakeNum))
+//     console.log(RES.length)
+//     res.status(200).send(RES.sort((a, b) => b.block - a.block))
 
 //     // RES.forEach(i => {
 //     //     const ADDR = i.address;
@@ -173,18 +174,19 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
 //     //     }
            
 //     // })
-
-//     res.status(200).send(RES.sort((a, b) => b.block - a.block))
+//     // // console.log(RES.length)
+    
+//     // res.status(200).send(arr)
 // })
 
 // staking_router.get('/fetch-events/all/unstake', async (req, res) => {
 //     const results = await _getEventsV1("Unstake", 11248075, 11472614)
-//     const results2 = await _getEvents("Unstake", 11472615, 'latest')
+//     const results2 = await _getEvents("Unstake", 11472615, 11633815)
 
 //     const arr = {};
 //     const RES = results.concat(results2)
 
-//     console.log(results.concat(results2).length)
+//     console.log(RES.length)
 //     res.status(200).send(RES.sort((a, b) => b.block - a.block))
 
 //     // res.status(200).send(results.concat(results2).forEach(i => {
@@ -194,6 +196,40 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
 //     //     else
 //     //         arr[ADDR].push(i.stakeNum)
 //     // }))
+// })
+
+
+// staking_router.get('/generate-active-stakes-report', async (req, res) => {
+//     // const stakes_v1 = await _getEventsV1("Stake", 11248075, 11472614)
+//     // const stakes_v2 = await _getEvents("Stake", 11472615, 11633815)
+//     // const ALL_STAKES = stakes_v1.concat(stakes_v2);
+//     // saveToFile("full_stake_events.txt", ALL_STAKES)
+
+//     // const unstakes_v1 = await _getEventsV1("Unstake", 11248075, 11472614)
+//     // const unstakes_v2 = await _getEvents("Unstake", 11472615, 11633815)
+//     // const ALL_UNSTAKES = unstakes_v1.concat(unstakes_v2);
+//     // saveToFile("full_unstake_events.txt", ALL_UNSTAKES)
+    
+//     // const ACTIVE_STAKES = ALL_STAKES.filter(s => !ALL_UNSTAKES.find(u => +u.returnValues.sessionId === +s.returnValues.sessionId))
+//     // saveToFile("active_stake_events.txt", ACTIVE_STAKES)
+    
+//     const STAKE_EVENTS = await readFile("full_stake_events.txt");
+//     const ACTIVE_STAKES = await readFile("active_stake_events.txt");
+
+//     const result = {
+//         sessionID: STAKE_EVENTS.map(se => +se.returnValues.sessionId),
+//         address: STAKE_EVENTS.map(se => se.returnValues.account),
+//         amount: STAKE_EVENTS.map(se => +se.returnValues.amount),
+//         shares: STAKE_EVENTS.map(se => +se.returnValues.shares),
+//         starttime: STAKE_EVENTS.map(se => +se.returnValues.start),
+//         endtime: STAKE_EVENTS.map(se => +se.returnValues.end),
+//         withdrawn: STAKE_EVENTS.map(se => ACTIVE_STAKES.findIndex(o => o.returnValues.sessionId === se.returnValues.sessionId) === -1 ? true : false),
+//     }
+
+//     console.log("Active Stakes:", result.withdrawn.filter(d => d === false).length);
+//     console.log("Widhtrawn Stakes:", result.withdrawn.filter(d => d === true).length);
+
+//     res.status(200).send(result)
 // })
 
 module.exports = staking_router;

@@ -14,18 +14,45 @@ const _saveEvents = (path, events) => {
     });
 }
 
-const _cleanData = data => data.map(d => {
-    return {
-        address: d.returnValues.account,
-        stakeNum: d.returnValues.sessionId,
-        amount: d.returnValues.amount,
-        start: d.returnValues.start,
-        end: d.returnValues.end,
-        shares: d.returnValues.shares,
-        block: d.blockNumber,
-        txID: d.transactionHash
-    }
-})
+const _cleanData = (data, type) => {
+
+    let dat = [...data];
+    if (type === "Stake")
+        dat = dat.filter(d => +d.returnValues.sessionId >= 23439)
+
+    return dat.map(d => {
+        return {
+            address: d.returnValues.account,
+            stakeNum: d.returnValues.sessionId,
+            amount: d.returnValues.amount,
+            start: d.returnValues.start,
+            end: d.returnValues.end,
+            shares: d.returnValues.shares,
+            block: d.blockNumber,
+            txID: d.transactionHash
+        }
+    })
+}
+
+const _cleanDataV1 = (data, type) => {
+
+    let dat = [...data];
+    if (type === "Stake")
+        dat = dat.filter(d => +d.returnValues.sessionId <= 23438)
+
+    return dat.map(d => {
+        return {
+            address: d.returnValues.account,
+            stakeNum: d.returnValues.sessionId,
+            amount: d.returnValues.amount,
+            start: d.returnValues.start,
+            end: d.returnValues.end,
+            shares: d.returnValues.shares,
+            block: d.blockNumber,
+            txID: d.transactionHash
+        }
+    })
+}
 
 const _getEventsV1 = async (type, startBlock, endBlock) => {
     return new Promise(resolve => {
@@ -54,7 +81,7 @@ const _getEventsV1 = async (type, startBlock, endBlock) => {
                 resolve([])
             }
             else {
-                const CLEANED_DATA = _cleanData(events);
+                const CLEANED_DATA = _cleanDataV1(events, type);
                 resolve(CLEANED_DATA)
             }
         })
@@ -88,7 +115,7 @@ const _getEvents = async (type, fromBlock, toBlock) => {
                 resolve([])
             }
             else {
-                const CLEANED_DATA = _cleanData(events);
+                const CLEANED_DATA = _cleanData(events, type);
                 resolve(CLEANED_DATA)
             }
         })
@@ -170,8 +197,8 @@ const _calculateStakingStats = async () => {
     _saveEvents(UNSTAKE_EVENTS_FILE, ALL_UNSTAKE_EVENTS);
 
     // Return the results
-    let results = _processEvents(ALL_STAKE_EVENTS, ALL_UNSTAKE_EVENTS);
-    results["block"] = Math.max(lastSavedStakeEventBlock, lastSavedUnstakeEventBlock);
+    let results = _processEvents(SAVED_EVENTS[0], SAVED_EVENTS[1]);
+    results["block"] = Math.max(lastSavedStakeEventBlock+1, lastSavedUnstakeEventBlock+1);
     results["timestamp"] = Date.now();
     return results;
 }
