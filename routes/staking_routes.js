@@ -169,7 +169,7 @@ staking_router.get('/fetch-total-staked', async (req, res) => {
         return;
     }
 
-    const TYPE = req.query.type ?? "cached";
+    const TYPE = req.query.type || "cached";
 
     let STAKE_EVENTS;
     let UNSTAKE_EVENTS;
@@ -186,7 +186,7 @@ staking_router.get('/fetch-total-staked', async (req, res) => {
         const V1_START_BLOCK = 11248075;
         const V1_END_BLOCK = 11472614;
         const V2_START_BLOCK = 11472615;
-        const V2_END_BLOCK = req.query.end ?? "latest";
+        const V2_END_BLOCK = req.query.end || "latest";
 
         const stakes_v1 = await _getEventsV1("Stake", V1_START_BLOCK, V1_END_BLOCK)
         const stakes_v2 = await _getEvents("Stake", V2_START_BLOCK, V2_END_BLOCK)
