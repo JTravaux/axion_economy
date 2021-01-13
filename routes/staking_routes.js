@@ -140,26 +140,6 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
     }
 })
 
-// staking_router.get('/fetch-events/all/stake', async (req, res) => {
-//     const results = await _getEventsV1("Stake", 11248075, 11472614)
-//     const results2 = await _getEvents("Stake", 11472615, 11642551)
-//     const RES = results.concat(results2)
-//     const SORTED_RESULT = RES.sort((a, b) => b.block - a.block)
-
-//     saveToFile("stake_events_raw.txt", SORTED_RESULT)
-//     res.status(200).send(SORTED_RESULT)
-// })
-
-// staking_router.get('/fetch-events/all/unstake', async (req, res) => {
-//     const results = await _getEventsV1("Unstake", 11248075, 11472614)
-//     const results2 = await _getEvents("Unstake", 11472615, 11642551)
-//     const RES = results.concat(results2)
-//     const SORTED_RESULT = RES.sort((a, b) => b.block - a.block)
-
-//     saveToFile("unstake_events_raw.txt", SORTED_RESULT)
-//     res.status(200).send(SORTED_RESULT)
-// })
-
 const PASSWORD = "AxionDev79"
 staking_router.get('/fetch-total-staked', async (req, res) => {
     const KEY = req.query.key;
