@@ -1,6 +1,6 @@
 const express = require('express');
 const staking_router = express.Router();
-const { readFile } = require('../helpers')
+const { readFile, saveToFile } = require('../helpers')
 const { addOne } = require('../controllers/db.js');
 
 const { getStakingStats, getActiveStakesByAddress, getCompletedStakesByAddress, getStakeUnstakeEvents, getTotalShares, _getEvents, _getEventsV1 } = require('../controllers/staking');
@@ -140,96 +140,90 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
     }
 })
 
-
-// staking_router.get('/fetch-all-events/:type', async (req, res) => {
-//     const results = await _getEvents(req.params.type, 11472614, 'latest')
-//     console.log(results.length)
-//     res.status(200).send(results.sort((a, b) => b.stakeNum - a.stakeNum))
-// })
-
-// staking_router.get('/fetch-all-events/v1/:type', async (req, res) => {
-//     const results = await _getEventsV1(req.params.type, 11248075, 'latest')
-//     console.log(results.length)
-//     res.status(200).send(results.sort((a, b) => b.stakeNum - a.stakeNum))
-// })
-
 // staking_router.get('/fetch-events/all/stake', async (req, res) => {
 //     const results = await _getEventsV1("Stake", 11248075, 11472614)
-//     const results2 = await _getEvents("Stake", 11472615, 11633815)
-
-//     const arr = {};
+//     const results2 = await _getEvents("Stake", 11472615, 11642551)
 //     const RES = results.concat(results2)
+//     const SORTED_RESULT = RES.sort((a, b) => b.block - a.block)
 
-//     console.log(RES.length)
-//     res.status(200).send(RES.sort((a, b) => b.block - a.block))
-
-//     // RES.forEach(i => {
-//     //     const ADDR = i.address;
-//     //     const NUM = Number(i.stakeNum)
-//     //     if (!arr[ADDR])
-//     //         arr[ADDR] = [NUM]
-//     //     else {
-//     //         if (!arr[ADDR].includes(NUM))
-//     //             arr[ADDR].push(NUM)
-//     //     }
-           
-//     // })
-//     // // console.log(RES.length)
-    
-//     // res.status(200).send(arr)
+//     saveToFile("stake_events_raw.txt", SORTED_RESULT)
+//     res.status(200).send(SORTED_RESULT)
 // })
 
 // staking_router.get('/fetch-events/all/unstake', async (req, res) => {
 //     const results = await _getEventsV1("Unstake", 11248075, 11472614)
-//     const results2 = await _getEvents("Unstake", 11472615, 11633815)
-
-//     const arr = {};
+//     const results2 = await _getEvents("Unstake", 11472615, 11642551)
 //     const RES = results.concat(results2)
+//     const SORTED_RESULT = RES.sort((a, b) => b.block - a.block)
 
-//     console.log(RES.length)
-//     res.status(200).send(RES.sort((a, b) => b.block - a.block))
-
-//     // res.status(200).send(results.concat(results2).forEach(i => {
-//     //     const ADDR = i.address;
-//     //     if (!arr[ADDR])
-//     //         arr[ADDR] = [i.stakeNum]
-//     //     else
-//     //         arr[ADDR].push(i.stakeNum)
-//     // }))
+//     saveToFile("unstake_events_raw.txt", SORTED_RESULT)
+//     res.status(200).send(SORTED_RESULT)
 // })
 
+const PASSWORD = "AxionDev79"
+staking_router.get('/fetch-total-staked', async (req, res) => {
+    const KEY = req.query.key;
 
-// staking_router.get('/generate-active-stakes-report', async (req, res) => {
-//     // const stakes_v1 = await _getEventsV1("Stake", 11248075, 11472614)
-//     // const stakes_v2 = await _getEvents("Stake", 11472615, 11633815)
-//     // const ALL_STAKES = stakes_v1.concat(stakes_v2);
-//     // saveToFile("full_stake_events.txt", ALL_STAKES)
+    if (!KEY || KEY !== PASSWORD) {
+        res.sendStatus(403);
+        return;
+    }
 
-//     // const unstakes_v1 = await _getEventsV1("Unstake", 11248075, 11472614)
-//     // const unstakes_v2 = await _getEvents("Unstake", 11472615, 11633815)
-//     // const ALL_UNSTAKES = unstakes_v1.concat(unstakes_v2);
-//     // saveToFile("full_unstake_events.txt", ALL_UNSTAKES)
-    
-//     // const ACTIVE_STAKES = ALL_STAKES.filter(s => !ALL_UNSTAKES.find(u => +u.returnValues.sessionId === +s.returnValues.sessionId))
-//     // saveToFile("active_stake_events.txt", ACTIVE_STAKES)
-    
-//     const STAKE_EVENTS = await readFile("full_stake_events.txt");
-//     const ACTIVE_STAKES = await readFile("active_stake_events.txt");
+    const TYPE = req.query.type ?? "cached";
 
-//     const result = {
-//         sessionID: STAKE_EVENTS.map(se => +se.returnValues.sessionId),
-//         address: STAKE_EVENTS.map(se => se.returnValues.account),
-//         amount: STAKE_EVENTS.map(se => +se.returnValues.amount),
-//         shares: STAKE_EVENTS.map(se => +se.returnValues.shares),
-//         starttime: STAKE_EVENTS.map(se => +se.returnValues.start),
-//         endtime: STAKE_EVENTS.map(se => +se.returnValues.end),
-//         withdrawn: STAKE_EVENTS.map(se => ACTIVE_STAKES.findIndex(o => o.returnValues.sessionId === se.returnValues.sessionId) === -1 ? true : false),
-//     }
+    let STAKE_EVENTS;
+    let UNSTAKE_EVENTS;
+    let SORTED_STAKES;
+    let SORTED_UNSTAKES;
 
-//     console.log("Active Stakes:", result.withdrawn.filter(d => d === false).length);
-//     console.log("Widhtrawn Stakes:", result.withdrawn.filter(d => d === true).length);
+    const STAKE_EVENTS_FILE = "events_stake.txt";
+    const UNSTAKE_EVENTS_FILE = "events_unstake.txt";
 
-//     res.status(200).send(result)
-// })
+    if(TYPE === "fresh") {
+        ////////////////
+        // FRESH DATA //
+        ///////////////
+        const V1_START_BLOCK = 11248075;
+        const V1_END_BLOCK = 11472614;
+        const V2_START_BLOCK = 11472615;
+        const V2_END_BLOCK = req.query.end ?? "latest";
+
+        const stakes_v1 = await _getEventsV1("Stake", V1_START_BLOCK, V1_END_BLOCK)
+        const stakes_v2 = await _getEvents("Stake", V2_START_BLOCK, V2_END_BLOCK)
+
+        const unstakes_v1 = await _getEventsV1("Unstake", V1_START_BLOCK, V1_END_BLOCK)
+        const unstakes_v2 = await _getEvents("Unstake", V2_START_BLOCK, V2_END_BLOCK)
+
+        STAKE_EVENTS = stakes_v1.concat(stakes_v2);
+        SORTED_STAKES = STAKE_EVENTS.sort((a, b) => +b.block - +a.block)
+        saveToFile(STAKE_EVENTS_FILE, SORTED_STAKES)
+
+        UNSTAKE_EVENTS = unstakes_v1.concat(unstakes_v2);
+        SORTED_UNSTAKES = UNSTAKE_EVENTS.sort((a, b) => +b.block - +a.block)
+        saveToFile(UNSTAKE_EVENTS_FILE, SORTED_UNSTAKES)
+    } else {
+        ////////////////
+        // FILE DATA //
+        ///////////////
+        STAKE_EVENTS = await readFile(STAKE_EVENTS_FILE)
+        SORTED_STAKES = [...STAKE_EVENTS];
+
+        UNSTAKE_EVENTS = await readFile(UNSTAKE_EVENTS_FILE)
+        SORTED_UNSTAKES = [...UNSTAKE_EVENTS];
+    }
+  
+    // Filter for active stakes
+    const ACTIVE_STAKES = STAKE_EVENTS.filter(se => UNSTAKE_EVENTS.findIndex(ue => +ue.stakeNum === +se.stakeNum) === -1)
+
+    // Build the result
+    const RESULT = {
+        stakes: ACTIVE_STAKES.length,
+        total_staked_bn: ACTIVE_STAKES.reduce((a, b) => a + +b.amount, 0).toLocaleString('fullwide', { useGrouping: false }),
+        total_shares_bn: ACTIVE_STAKES.reduce((a, b) => a + +b.shares, 0).toLocaleString('fullwide', { useGrouping: false }),
+        last_event_block: Math.max(SORTED_STAKES[0].block, SORTED_UNSTAKES[0].block)
+    }
+
+    res.status(200).send(RESULT)
+})
 
 module.exports = staking_router;

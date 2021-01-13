@@ -66,7 +66,6 @@ const _getEventsV1 = async (type, startBlock, endBlock) => {
                 let startBlock = CONTRACT_FIRST_BLOCK;
                 let endBlock = CONTRACT_FIRST_BLOCK + BLOCK_CHUNKS[0];
 
-                console.log(BLOCK_CHUNKS.length)
                 for (let i = 0; i < BLOCK_CHUNKS.length; ++i) {
                     promises.push(_getEventsV1(type, startBlock, endBlock));
                     const newStartBlock = endBlock + 1;
