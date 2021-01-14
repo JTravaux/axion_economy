@@ -1,1 +1,1 @@
-{"timestamp":1610565507166,"claimed_addresses":2153,"claimable_addresses":183035,"claimed_amount":26337261240,"claimable_amount":250000000000,"percent_addresses_claimed":0.011762777610839457,"percent_amount_claimed":0.10534904496}
+{"timestamp":1610657817731,"claimed_addresses":2156,"claimable_addresses":183035,"claimed_amount":26339722246,"claimable_amount":250000000000,"percent_addresses_claimed":0.011779167918704073,"percent_amount_claimed":0.105358888984}

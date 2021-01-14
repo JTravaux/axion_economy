@@ -141,6 +141,34 @@ staking_router.get('/latest-events/:num?', async (req, res) => {
 })
 
 const PASSWORD = "AxionDev79"
+staking_router.get('/refresh-data', async (req, res) => {
+    const KEY = req.query.key;
+
+    if (!KEY || KEY !== PASSWORD) {
+        res.sendStatus(403);
+        return;
+    }
+
+    try {
+        const V1_START_BLOCK = 11248075;
+        const V1_END_BLOCK = 11472614;
+        const V2_START_BLOCK = 11472615;
+        const V2_END_BLOCK = "latest";
+
+        const stakes_v1 = await _getEventsV1("Stake", V1_START_BLOCK, V1_END_BLOCK)
+        const stakes_v2 = await _getEvents("Stake", V2_START_BLOCK, V2_END_BLOCK)
+        STAKE_EVENTS = stakes_v1.concat(stakes_v2).sort((a, b) => +b.block - +a.block);
+        await saveToFile(STAKE_EVENTS_FILE, STAKE_EVENTS)
+
+        const unstakes_v1 = await _getEventsV1("Unstake", V1_START_BLOCK, V1_END_BLOCK)
+        const unstakes_v2 = await _getEvents("Unstake", V2_START_BLOCK, V2_END_BLOCK)
+        UNSTAKE_EVENTS = unstakes_v1.concat(unstakes_v2).sort((a, b) => +b.block - +a.block);
+        await saveToFile(UNSTAKE_EVENTS_FILE, UNSTAKE_EVENTS)
+
+        res.status(200).send({ status: "done!" })
+    } catch (err) { res.status(500).send({ status: err.message }) }
+})
+
 staking_router.get('/fetch-total-staked', async (req, res) => {
     const KEY = req.query.key;
 
